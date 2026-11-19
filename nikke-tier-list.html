@@ -1,0 +1,2335 @@
+<!doctype html>
+<html lang="en"><head><style>html img,html video,html canvas{height:revert-layer}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:,">
+<title>Nikke Tier List and Team Builder</title>
+<style>
+  :root{
+    --bg:#0c0e12; --bg2:#11141a; --panel:#161a22; --panel2:#1c212c; --line:#2a303d;
+    --ink:#eef1f6; --muted:#9aa3b2; --faint:#6b7382;
+    --accent:#e8364f; --accent-dark:#b91f36;
+    --ssr:#f5b942; --sr:#b07fe8; --r:#5aa2f0;
+    --fire:#ff6a4d; --water:#4da3ff; --wind:#43d17c; --electric:#c084fc; --iron:#c9cedb;
+    --s:#e8364f; --a:#f08c3a; --b:#e8c33a; --c:#43b581; --d:#5a7fa6; --un:#3a4152;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;line-height:1.45}
+  button,[role="button"],select,input:not([type="checkbox"],[type="radio"]){min-height:36px}
+  button{font:inherit;cursor:pointer}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 64px}
+
+  /* ---------- Header ---------- */
+  header.top{border-bottom:3px solid var(--accent);padding-bottom:14px;margin-bottom:16px}
+  .top-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
+  h1{font-size:clamp(22px,4.5vw,32px);margin:0;line-height:1.15;letter-spacing:.2px;font-weight:800}
+  h1 .game{display:block;font-size:12px;font-weight:700;letter-spacing:2.5px;color:var(--accent);text-transform:uppercase;margin-bottom:4px}
+  .counts{display:flex;gap:8px;flex-wrap:wrap}
+  .count-chip{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted)}
+  .count-chip b{color:var(--ink);font-size:15px}
+  .count-chip b.ranked{color:#43d17c}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 14px;font-size:13.5px;font-weight:600}
+  .btn:hover{border-color:var(--accent);color:#fff}
+  .btn.danger:hover{border-color:var(--accent);background:var(--accent-dark)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-dark)}
+
+  /* ---------- View tabs ---------- */
+  .viewtabs{display:flex;gap:8px;margin:18px 0 14px}
+  .viewtab{flex:1;background:var(--panel);border:1px solid var(--line);border-bottom:3px solid var(--line);
+    color:var(--muted);border-radius:10px 10px 0 0;padding:10px 8px;font-weight:700;font-size:15px}
+  .viewtab[aria-selected="true"]{color:#fff;border-bottom-color:var(--accent);background:var(--panel2)}
+  .viewtab .sub{display:block;font-size:11.5px;font-weight:500;color:var(--faint);margin-top:2px}
+  .viewtab[aria-selected="true"] .sub{color:var(--muted)}
+
+  /* ---------- Filters ---------- */
+  .filters{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:14px}
+  .filters label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+  .filters .grow{flex:1 1 200px}
+  .filters input[type="search"],.filters select{background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:14px;width:100%}
+  .filter-note{font-size:12.5px;color:var(--faint);width:100%}
+
+  /* ---------- Cards ---------- */
+  .card{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--line);
+    border-radius:8px;padding:8px 10px;width:172px;text-align:left;color:var(--ink);user-select:none}
+  .card.r-SSR{border-left-color:var(--ssr)} .card.r-SR{border-left-color:var(--sr)} .card.r-R{border-left-color:var(--r)}
+  .card .nm{font-weight:700;font-size:13.5px;line-height:1.25;display:block;overflow-wrap:anywhere}
+  .card .meta{display:flex;flex-wrap:wrap;gap:4px 8px;margin-top:5px;font-size:11.5px;color:var(--muted);align-items:center}
+  .burst-badge{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-weight:800;color:#fff;font-size:11px}
+  .edot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:baseline}
+  .edot.Fire{background:var(--fire)} .edot.Water{background:var(--water)} .edot.Wind{background:var(--wind)}
+  .edot.Electric{background:var(--electric)} .edot.Iron{background:var(--iron)}
+  .rar{font-weight:800;font-size:11px;letter-spacing:.5px}
+  .rar.SSR{color:var(--ssr)} .rar.SR{color:var(--sr)} .rar.R{color:var(--r)}
+  .stars{color:var(--ssr);letter-spacing:1px}
+  .card[draggable="true"]{cursor:grab}
+  .card[draggable="true"]:active{cursor:grabbing}
+  .card.selected{outline:2px solid var(--accent);outline-offset:1px}
+  .card.inteam{opacity:.45}
+  .card .inteam-tag{font-size:10.5px;font-weight:800;color:var(--accent);letter-spacing:.5px}
+  .card.hidden-by-filter{display:none}
+
+  /* ---------- Tier board ---------- */
+  .tier-row{display:flex;gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;background:var(--panel)}
+  .tier-label{flex:0 0 64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    font-size:24px;font-weight:900;color:#10131a;padding:10px 4px;text-align:center}
+  .tier-label .n{font-size:11px;font-weight:700;color:rgba(10,12,16,.75)}
+  .tier-label.t-S{background:var(--s);color:#fff}.tier-label.t-S .n{color:rgba(255,255,255,.85)}
+  .tier-label.t-A{background:var(--a)} .tier-label.t-B{background:var(--b)}
+  .tier-label.t-C{background:var(--c)} .tier-label.t-D{background:var(--d);color:#fff}
+  .tier-label.t-unranked{background:var(--un);color:#fff;font-size:13px;letter-spacing:.5px}
+  .tier-label.t-unranked .n{color:rgba(255,255,255,.8)}
+  .tier-zone{flex:1;display:flex;flex-wrap:wrap;gap:8px;padding:10px;min-height:64px;align-content:flex-start;align-items:flex-start}
+  .tier-zone.dragover{background:#232936;box-shadow:inset 0 0 0 2px var(--accent)}
+  .tier-zone .empty-note{color:var(--faint);font-size:13px;padding:6px 2px}
+  .hint{background:#1a1418;border:1px solid #4a2430;border-radius:8px;padding:9px 12px;font-size:13px;color:#f0c4cc;margin-bottom:12px;display:none}
+  .hint.show{display:block}
+  .hint b{color:#fff}
+
+  /* ---------- Team builder ---------- */
+  .team-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+  .team-tab{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:8px 16px;font-weight:700}
+  .team-tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .team-name-wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .team-name-wrap label{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+  .team-name-wrap input{background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:14px;min-width:200px}
+  .slots{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+  .slot{background:var(--panel);border:1.5px dashed var(--line);border-radius:var(--radius);min-height:118px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;text-align:center;color:var(--faint)}
+  .slot.filled{border-style:solid;border-color:var(--line);background:var(--panel2);color:var(--ink);cursor:pointer}
+  .slot.filled:hover{border-color:var(--accent)}
+  .slot .slotnum{font-size:10.5px;font-weight:800;letter-spacing:1px;color:var(--faint)}
+  .slot .nm{font-weight:700;font-size:13.5px;line-height:1.25}
+  .slot .meta{font-size:11.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center}
+  .slot .remove{font-size:11px;color:var(--accent);font-weight:700}
+  .summary{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:18px}
+  .summary h3{margin:0 0 10px;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .sum-grid{display:flex;flex-wrap:wrap;gap:18px 28px}
+  .sum-block .k{font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);margin-bottom:5px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:12.5px;font-weight:600}
+  .chip b{color:#fff}
+  .chain-flag{margin-top:12px;border-radius:8px;padding:9px 12px;font-size:13.5px;font-weight:600}
+  .chain-flag.ok{background:#12291c;border:1px solid #1f5c38;color:#8fe6b0}
+  .chain-flag.bad{background:#2c1518;border:1px solid #6e2430;color:#ffb3bc}
+  .chain-flag.idle{background:var(--bg2);border:1px solid var(--line);color:var(--muted)}
+  .picker-head{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:10px}
+  .picker-head h3{margin:0;font-size:16px}
+  .picker-head .grow{flex:1 1 180px}
+  .picker-head input[type="search"]{background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:14px;width:100%}
+  .picker{display:flex;flex-wrap:wrap;gap:8px}
+  .picker .card{cursor:pointer}
+  .picker .card:hover{border-color:var(--accent)}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#232936;border:1px solid var(--accent);
+    color:#fff;border-radius:8px;padding:10px 16px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;max-width:92vw;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ---------- Modal ---------- */
+  .modal-back{position:fixed;inset:0;background:rgba(4,5,8,.72);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .modal-back.show{display:flex}
+  .modal{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:20px;max-width:420px;width:100%}
+  .modal h3{margin:0 0 8px;font-size:17px}
+  .modal p{margin:0 0 16px;color:var(--muted);font-size:14px}
+  .modal .row{display:flex;gap:8px;justify-content:flex-end}
+
+  footer{margin-top:28px;color:var(--faint);font-size:12.5px;border-top:1px solid var(--line);padding-top:12px}
+
+  @media (max-width:640px){
+    .wrap{padding:14px 10px 56px}
+    .tier-label{flex-basis:46px;font-size:19px}
+    .tier-label.t-unranked{font-size:10px}
+    .card{width:calc(50% - 4px);min-width:140px}
+    .slots{grid-template-columns:repeat(2,1fr)}
+    .slot:last-child{grid-column:span 2}
+    .filters label{flex:1 1 42%;min-width:0}
+    .filters select,.filters input{min-width:0}
+    .filters .grow{flex-basis:100%}
+  }
+</style>
+  <style></style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="top-row">
+      <h1><span class="game">Goddess of Victory: Nikke</span>Tier List &amp; Team Builder</h1>
+      <div class="counts" aria-live="polite">
+        <span class="count-chip"><b class="ranked" id="countRanked">0</b> ranked</span>
+        <span class="count-chip"><b id="countUnranked">75</b> unranked</span>
+        <span class="count-chip"><b>75</b> total</span>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnExport" type="button">Export JSON</button>
+      <button class="btn" id="btnImport" type="button">Import JSON</button>
+      <input type="file" id="fileImport" accept="application/json,.json" hidden="">
+      <button class="btn" id="btnDownload" type="button">Download this page (.html)</button>
+      <button class="btn danger" id="btnReset" type="button">Reset everything</button>
+    </div>
+  </header>
+
+  <div class="viewtabs" role="tablist" aria-label="Views">
+    <button class="viewtab" id="tabTier" role="tab" aria-selected="true" type="button">Tier List<span class="sub">Rank all 75 Nikkes into S–D</span></button>
+    <button class="viewtab" id="tabTeam" role="tab" aria-selected="false" type="button">Team Builder<span class="sub">Build and save up to 3 teams of 5</span></button>
+  </div>
+
+  <!-- ================= TIER LIST ================= -->
+  <section id="viewTier" role="tabpanel" aria-label="Tier list">
+    <div class="filters">
+      <label class="grow">Search by name
+        <input type="search" id="fSearch" placeholder="e.g. Drake, Privaty, Soldier…" autocomplete="off">
+      </label>
+      <label>Element
+        <select id="fElement">
+          <option value="">All elements</option>
+          <option>Fire</option><option>Water</option><option>Wind</option><option>Electric</option><option>Iron</option>
+        </select>
+      </label>
+      <label>Rarity
+        <select id="fRarity">
+          <option value="">All rarities</option>
+          <option>SSR</option><option>SR</option><option>R</option>
+        </select>
+      </label>
+      <label>Burst
+        <select id="fBurst">
+          <option value="">All bursts</option>
+          <option value="I">Burst I</option><option value="II">Burst II</option><option value="III">Burst III</option>
+        </select>
+      </label>
+      <span class="filter-note" id="filterNote"></span>
+    </div>
+
+    <div class="hint" id="moveHint"><b>Moving:</b> <span id="moveName"></span> — tap a tier row (or the Unranked pool) to place it there. Tap the card again to cancel.</div>
+
+    <div id="tierBoard"><div class="tier-row"><div class="tier-label t-S" role="button" tabindex="0" aria-label="Move selected Nikke to tier S" title="Tap to move the selected Nikke here" data-count-for="S">S<span class="n"></span></div><div class="tier-zone" data-tier="S"><span class="empty-note">Drop Nikkes here, or select one and tap this row.</span></div></div><div class="tier-row"><div class="tier-label t-A" role="button" tabindex="0" aria-label="Move selected Nikke to tier A" title="Tap to move the selected Nikke here" data-count-for="A">A<span class="n"></span></div><div class="tier-zone" data-tier="A"><span class="empty-note">Drop Nikkes here, or select one and tap this row.</span></div></div><div class="tier-row"><div class="tier-label t-B" role="button" tabindex="0" aria-label="Move selected Nikke to tier B" title="Tap to move the selected Nikke here" data-count-for="B">B<span class="n"></span></div><div class="tier-zone" data-tier="B"><span class="empty-note">Drop Nikkes here, or select one and tap this row.</span></div></div><div class="tier-row"><div class="tier-label t-C" role="button" tabindex="0" aria-label="Move selected Nikke to tier C" title="Tap to move the selected Nikke here" data-count-for="C">C<span class="n"></span></div><div class="tier-zone" data-tier="C"><span class="empty-note">Drop Nikkes here, or select one and tap this row.</span></div></div><div class="tier-row"><div class="tier-label t-D" role="button" tabindex="0" aria-label="Move selected Nikke to tier D" title="Tap to move the selected Nikke here" data-count-for="D">D<span class="n"></span></div><div class="tier-zone" data-tier="D"><span class="empty-note">Drop Nikkes here, or select one and tap this row.</span></div></div><div class="tier-row"><div class="tier-label t-unranked" role="button" tabindex="0" aria-label="Move selected Nikke to the Unranked pool" title="Tap to move the selected Nikke here" data-count-for="unranked">POOL<span class="n"></span></div><div class="tier-zone" data-tier="unranked"><div class="card r-SSR" data-id="n0" draggable="true" role="button" tabindex="0" aria-label="Liberalio. Activate to select, then activate a tier to move."><span class="nm">Liberalio</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n1" draggable="true" role="button" tabindex="0" aria-label="Eunhwa: Tactical Upgrade. Activate to select, then activate a tier to move."><span class="nm">Eunhwa: Tactical Upgrade</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n2" draggable="true" role="button" tabindex="0" aria-label="Ein. Activate to select, then activate a tier to move."><span class="nm">Ein</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-R" data-id="n3" draggable="true" role="button" tabindex="0" aria-label="Product 08. Activate to select, then activate a tier to move."><span class="nm">Product 08</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Electric"></span>Electric</span><span class="rar R">R</span><span>Lv 174</span><span class="stars">LB —</span></span></div><div class="card r-SSR" data-id="n4" draggable="true" role="button" tabindex="0" aria-label="Dolla. Activate to select, then activate a tier to move."><span class="nm">Dolla</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n5" draggable="true" role="button" tabindex="0" aria-label="Nero. Activate to select, then activate a tier to move."><span class="nm">Nero</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-R" data-id="n6" draggable="true" role="button" tabindex="0" aria-label="Soldier EG. Activate to select, then activate a tier to move."><span class="nm">Soldier EG</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar R">R</span><span>Lv 1</span><span class="stars">LB —</span></span></div><div class="card r-R" data-id="n7" draggable="true" role="button" tabindex="0" aria-label="Product 23. Activate to select, then activate a tier to move."><span class="nm">Product 23</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar R">R</span><span>Lv 1</span><span class="stars">LB —</span></span></div><div class="card r-R" data-id="n8" draggable="true" role="button" tabindex="0" aria-label="iDoll Sun. Activate to select, then activate a tier to move."><span class="nm">iDoll Sun</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Iron"></span>Iron</span><span class="rar R">R</span><span>Lv 1</span><span class="stars">LB —</span></span></div><div class="card r-R" data-id="n9" draggable="true" role="button" tabindex="0" aria-label="iDoll Ocean. Activate to select, then activate a tier to move."><span class="nm">iDoll Ocean</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Water"></span>Water</span><span class="rar R">R</span><span>Lv 1</span><span class="stars">LB —</span></span></div><div class="card r-R" data-id="n10" draggable="true" role="button" tabindex="0" aria-label="Product 12. Activate to select, then activate a tier to move."><span class="nm">Product 12</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar R">R</span><span>Lv 1</span><span class="stars">LB —</span></span></div><div class="card r-SSR" data-id="n11" draggable="true" role="button" tabindex="0" aria-label="Belorta: Pumpkin Witch. Activate to select, then activate a tier to move."><span class="nm">Belorta: Pumpkin Witch</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n12" draggable="true" role="button" tabindex="0" aria-label="Eunhwa. Activate to select, then activate a tier to move."><span class="nm">Eunhwa</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-R" data-id="n13" draggable="true" role="button" tabindex="0" aria-label="Soldier OW. Activate to select, then activate a tier to move."><span class="nm">Soldier OW</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar R">R</span><span>Lv 174</span><span class="stars">LB —</span></span></div><div class="card r-SSR" data-id="n14" draggable="true" role="button" tabindex="0" aria-label="Yuni. Activate to select, then activate a tier to move."><span class="nm">Yuni</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n15" draggable="true" role="button" tabindex="0" aria-label="Guillotine. Activate to select, then activate a tier to move."><span class="nm">Guillotine</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n16" draggable="true" role="button" tabindex="0" aria-label="Signal. Activate to select, then activate a tier to move."><span class="nm">Signal</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SR" data-id="n17" draggable="true" role="button" tabindex="0" aria-label="Belorta. Activate to select, then activate a tier to move."><span class="nm">Belorta</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Electric"></span>Electric</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SR" data-id="n18" draggable="true" role="button" tabindex="0" aria-label="N102. Activate to select, then activate a tier to move."><span class="nm">N102</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Water"></span>Water</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n19" draggable="true" role="button" tabindex="0" aria-label="K. Activate to select, then activate a tier to move."><span class="nm">K</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n20" draggable="true" role="button" tabindex="0" aria-label="Cinderella. Activate to select, then activate a tier to move."><span class="nm">Cinderella</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n21" draggable="true" role="button" tabindex="0" aria-label="Soda. Activate to select, then activate a tier to move."><span class="nm">Soda</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n22" draggable="true" role="button" tabindex="0" aria-label="Epinel. Activate to select, then activate a tier to move."><span class="nm">Epinel</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SR" data-id="n23" draggable="true" role="button" tabindex="0" aria-label="Aigis. Activate to select, then activate a tier to move."><span class="nm">Aigis</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Iron"></span>Iron</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n24" draggable="true" role="button" tabindex="0" aria-label="Harran. Activate to select, then activate a tier to move."><span class="nm">Harran</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-R" data-id="n25" draggable="true" role="button" tabindex="0" aria-label="Doll Flower. Activate to select, then activate a tier to move."><span class="nm">Doll Flower</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Wind"></span>Wind</span><span class="rar R">R</span><span>Lv 174</span><span class="stars">LB —</span></span></div><div class="card r-R" data-id="n26" draggable="true" role="button" tabindex="0" aria-label="Soldier FA. Activate to select, then activate a tier to move."><span class="nm">Soldier FA</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Iron"></span>Iron</span><span class="rar R">R</span><span>Lv 174</span><span class="stars">LB —</span></span></div><div class="card r-SSR" data-id="n27" draggable="true" role="button" tabindex="0" aria-label="Noir. Activate to select, then activate a tier to move."><span class="nm">Noir</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n28" draggable="true" role="button" tabindex="0" aria-label="Maxwell. Activate to select, then activate a tier to move."><span class="nm">Maxwell</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SR" data-id="n29" draggable="true" role="button" tabindex="0" aria-label="Delta. Activate to select, then activate a tier to move."><span class="nm">Delta</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n30" draggable="true" role="button" tabindex="0" aria-label="Emma. Activate to select, then activate a tier to move."><span class="nm">Emma</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n31" draggable="true" role="button" tabindex="0" aria-label="Elegg. Activate to select, then activate a tier to move."><span class="nm">Elegg</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n32" draggable="true" role="button" tabindex="0" aria-label="Neon: Blue Ocean. Activate to select, then activate a tier to move."><span class="nm">Neon: Blue Ocean</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SR" data-id="n33" draggable="true" role="button" tabindex="0" aria-label="Mica. Activate to select, then activate a tier to move."><span class="nm">Mica</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Wind"></span>Wind</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n34" draggable="true" role="button" tabindex="0" aria-label="Guilty: Mighty Bunny. Activate to select, then activate a tier to move."><span class="nm">Guilty: Mighty Bunny</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n35" draggable="true" role="button" tabindex="0" aria-label="Milk. Activate to select, then activate a tier to move."><span class="nm">Milk</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n36" draggable="true" role="button" tabindex="0" aria-label="Mary. Activate to select, then activate a tier to move."><span class="nm">Mary</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n37" draggable="true" role="button" tabindex="0" aria-label="Soline. Activate to select, then activate a tier to move."><span class="nm">Soline</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SR" data-id="n38" draggable="true" role="button" tabindex="0" aria-label="Mihara. Activate to select, then activate a tier to move."><span class="nm">Mihara</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n39" draggable="true" role="button" tabindex="0" aria-label="Sakura. Activate to select, then activate a tier to move."><span class="nm">Sakura</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n40" draggable="true" role="button" tabindex="0" aria-label="Drake: Great Villain. Activate to select, then activate a tier to move."><span class="nm">Drake: Great Villain</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n41" draggable="true" role="button" tabindex="0" aria-label="Queen (Makoto). Activate to select, then activate a tier to move."><span class="nm">Queen (Makoto)</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n42" draggable="true" role="button" tabindex="0" aria-label="D: Killer Wife. Activate to select, then activate a tier to move."><span class="nm">D: Killer Wife</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n43" draggable="true" role="button" tabindex="0" aria-label="Trony. Activate to select, then activate a tier to move."><span class="nm">Trony</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SSR" data-id="n44" draggable="true" role="button" tabindex="0" aria-label="Marian: Queen. Activate to select, then activate a tier to move."><span class="nm">Marian: Queen</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n45" draggable="true" role="button" tabindex="0" aria-label="Snow White. Activate to select, then activate a tier to move."><span class="nm">Snow White</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SSR" data-id="n46" draggable="true" role="button" tabindex="0" aria-label="Poli. Activate to select, then activate a tier to move."><span class="nm">Poli</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SR" data-id="n47" draggable="true" role="button" tabindex="0" aria-label="Ether. Activate to select, then activate a tier to move."><span class="nm">Ether</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Electric"></span>Electric</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n48" draggable="true" role="button" tabindex="0" aria-label="Mana. Activate to select, then activate a tier to move."><span class="nm">Mana</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n49" draggable="true" role="button" tabindex="0" aria-label="Naga. Activate to select, then activate a tier to move."><span class="nm">Naga</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SR" data-id="n50" draggable="true" role="button" tabindex="0" aria-label="Neon. Activate to select, then activate a tier to move."><span class="nm">Neon</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n51" draggable="true" role="button" tabindex="0" aria-label="Rapunzel: Sanctuary. Activate to select, then activate a tier to move."><span class="nm">Rapunzel: Sanctuary</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 200</span><span class="stars">LB ★★★</span></span></div><div class="card r-SR" data-id="n52" draggable="true" role="button" tabindex="0" aria-label="Rapi. Activate to select, then activate a tier to move."><span class="nm">Rapi</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n53" draggable="true" role="button" tabindex="0" aria-label="Marciana. Activate to select, then activate a tier to move."><span class="nm">Marciana</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n54" draggable="true" role="button" tabindex="0" aria-label="Privaty. Activate to select, then activate a tier to move."><span class="nm">Privaty</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SSR" data-id="n55" draggable="true" role="button" tabindex="0" aria-label="Vesti. Activate to select, then activate a tier to move."><span class="nm">Vesti</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n56" draggable="true" role="button" tabindex="0" aria-label="Vesti: Tactical Upgrade. Activate to select, then activate a tier to move."><span class="nm">Vesti: Tactical Upgrade</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n57" draggable="true" role="button" tabindex="0" aria-label="Delta: Ninja Thief. Activate to select, then activate a tier to move."><span class="nm">Delta: Ninja Thief</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n58" draggable="true" role="button" tabindex="0" aria-label="Blanc. Activate to select, then activate a tier to move."><span class="nm">Blanc</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SSR" data-id="n59" draggable="true" role="button" tabindex="0" aria-label="Liter. Activate to select, then activate a tier to move."><span class="nm">Liter</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n60" draggable="true" role="button" tabindex="0" aria-label="Tia. Activate to select, then activate a tier to move."><span class="nm">Tia</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n61" draggable="true" role="button" tabindex="0" aria-label="Privaty: Unkind Maid. Activate to select, then activate a tier to move."><span class="nm">Privaty: Unkind Maid</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n62" draggable="true" role="button" tabindex="0" aria-label="Modernia. Activate to select, then activate a tier to move."><span class="nm">Modernia</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n63" draggable="true" role="button" tabindex="0" aria-label="Unknown (ends in k). Activate to select, then activate a tier to move."><span class="nm">Unknown (ends in k)</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n64" draggable="true" role="button" tabindex="0" aria-label="Alice. Activate to select, then activate a tier to move."><span class="nm">Alice</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★★</span></span></div><div class="card r-SSR" data-id="n65" draggable="true" role="button" tabindex="0" aria-label="Exia. Activate to select, then activate a tier to move."><span class="nm">Exia</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n66" draggable="true" role="button" tabindex="0" aria-label="Anis: Sparkling Summer. Activate to select, then activate a tier to move."><span class="nm">Anis: Sparkling Summer</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n67" draggable="true" role="button" tabindex="0" aria-label="Velvet. Activate to select, then activate a tier to move."><span class="nm">Velvet</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n68" draggable="true" role="button" tabindex="0" aria-label="Clay. Activate to select, then activate a tier to move."><span class="nm">Clay</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n69" draggable="true" role="button" tabindex="0" aria-label="Drake. Activate to select, then activate a tier to move."><span class="nm">Drake</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 180</span><span class="stars">LB ★★★</span></span></div><div class="card r-SR" data-id="n70" draggable="true" role="button" tabindex="0" aria-label="Anis. Activate to select, then activate a tier to move."><span class="nm">Anis</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Iron"></span>Iron</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n71" draggable="true" role="button" tabindex="0" aria-label="Brid. Activate to select, then activate a tier to move."><span class="nm">Brid</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SSR" data-id="n72" draggable="true" role="button" tabindex="0" aria-label="Red Hood. Activate to select, then activate a tier to move."><span class="nm">Red Hood</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n73" draggable="true" role="button" tabindex="0" aria-label="Quency. Activate to select, then activate a tier to move."><span class="nm">Quency</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 200</span><span class="stars">LB ★★★</span></span></div><div class="card r-SSR" data-id="n74" draggable="true" role="button" tabindex="0" aria-label="Admire. Activate to select, then activate a tier to move."><span class="nm">Admire</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 195</span><span class="stars">LB ★★★</span></span></div></div></div></div>
+  </section>
+
+  <!-- ================= TEAM BUILDER ================= -->
+  <section id="viewTeam" role="tabpanel" aria-label="Team builder" hidden="">
+    <div class="team-tabs" role="tablist" aria-label="Saved teams" id="teamTabs"><button class="team-tab" type="button" role="tab" aria-selected="true">Team 1</button><button class="team-tab" type="button" role="tab" aria-selected="false">Team 2</button><button class="team-tab" type="button" role="tab" aria-selected="false">Team 3</button></div>
+    <div class="team-name-wrap">
+      <label for="teamName">Team name</label>
+      <input type="text" id="teamName" maxlength="40">
+      <button class="btn" id="btnClearTeam" type="button">Clear team</button>
+    </div>
+
+    <div class="slots" id="slots"><div class="slot"><span class="slotnum">SLOT 1</span><span>Empty</span></div><div class="slot"><span class="slotnum">SLOT 2</span><span>Empty</span></div><div class="slot"><span class="slotnum">SLOT 3</span><span>Empty</span></div><div class="slot"><span class="slotnum">SLOT 4</span><span>Empty</span></div><div class="slot"><span class="slotnum">SLOT 5</span><span>Empty</span></div></div>
+
+    <div class="summary" aria-live="polite">
+      <h3>Team summary</h3>
+      <div class="sum-grid">
+        <div class="sum-block">
+          <div class="k">Burst chain</div>
+          <div class="chips" id="sumBursts"><span class="chip">Burst I: <b>0</b></span><span class="chip">Burst II: <b>0</b></span><span class="chip">Burst III: <b>0</b></span></div>
+        </div>
+        <div class="sum-block">
+          <div class="k">Elements</div>
+          <div class="chips" id="sumElements"><span class="chip">None yet</span></div>
+        </div>
+        <div class="sum-block">
+          <div class="k">Average level</div>
+          <div class="chips"><span class="chip"><b id="sumAvg">—</b></span></div>
+        </div>
+        <div class="sum-block">
+          <div class="k">Members</div>
+          <div class="chips"><span class="chip"><b id="sumCount">0</b> / 5</span></div>
+        </div>
+      </div>
+      <div class="chain-flag idle" id="chainFlag">Add Nikkes below to build your burst chain.</div>
+    </div>
+
+    <div class="picker-head">
+      <h3>Add Nikkes</h3>
+      <div class="grow"><input type="search" id="pSearch" placeholder="Search the roster…" autocomplete="off"></div>
+    </div>
+    <div class="picker" id="picker"><div class="card r-SSR" data-id="n0" role="button" tabindex="0"><span class="nm">Liberalio</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n1" role="button" tabindex="0"><span class="nm">Eunhwa: Tactical Upgrade</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n2" role="button" tabindex="0"><span class="nm">Ein</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-R" data-id="n3" role="button" tabindex="0"><span class="nm">Product 08</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Electric"></span>Electric</span><span class="rar R">R</span><span>Lv 174</span><span class="stars">LB —</span></span></div><div class="card r-SSR" data-id="n4" role="button" tabindex="0"><span class="nm">Dolla</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n5" role="button" tabindex="0"><span class="nm">Nero</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-R" data-id="n6" role="button" tabindex="0"><span class="nm">Soldier EG</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar R">R</span><span>Lv 1</span><span class="stars">LB —</span></span></div><div class="card r-R" data-id="n7" role="button" tabindex="0"><span class="nm">Product 23</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar R">R</span><span>Lv 1</span><span class="stars">LB —</span></span></div><div class="card r-R" data-id="n8" role="button" tabindex="0"><span class="nm">iDoll Sun</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Iron"></span>Iron</span><span class="rar R">R</span><span>Lv 1</span><span class="stars">LB —</span></span></div><div class="card r-R" data-id="n9" role="button" tabindex="0"><span class="nm">iDoll Ocean</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Water"></span>Water</span><span class="rar R">R</span><span>Lv 1</span><span class="stars">LB —</span></span></div><div class="card r-R" data-id="n10" role="button" tabindex="0"><span class="nm">Product 12</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar R">R</span><span>Lv 1</span><span class="stars">LB —</span></span></div><div class="card r-SSR" data-id="n11" role="button" tabindex="0"><span class="nm">Belorta: Pumpkin Witch</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n12" role="button" tabindex="0"><span class="nm">Eunhwa</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-R" data-id="n13" role="button" tabindex="0"><span class="nm">Soldier OW</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar R">R</span><span>Lv 174</span><span class="stars">LB —</span></span></div><div class="card r-SSR" data-id="n14" role="button" tabindex="0"><span class="nm">Yuni</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n15" role="button" tabindex="0"><span class="nm">Guillotine</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n16" role="button" tabindex="0"><span class="nm">Signal</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SR" data-id="n17" role="button" tabindex="0"><span class="nm">Belorta</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Electric"></span>Electric</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SR" data-id="n18" role="button" tabindex="0"><span class="nm">N102</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Water"></span>Water</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n19" role="button" tabindex="0"><span class="nm">K</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n20" role="button" tabindex="0"><span class="nm">Cinderella</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n21" role="button" tabindex="0"><span class="nm">Soda</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n22" role="button" tabindex="0"><span class="nm">Epinel</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SR" data-id="n23" role="button" tabindex="0"><span class="nm">Aigis</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Iron"></span>Iron</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n24" role="button" tabindex="0"><span class="nm">Harran</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-R" data-id="n25" role="button" tabindex="0"><span class="nm">Doll Flower</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Wind"></span>Wind</span><span class="rar R">R</span><span>Lv 174</span><span class="stars">LB —</span></span></div><div class="card r-R" data-id="n26" role="button" tabindex="0"><span class="nm">Soldier FA</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Iron"></span>Iron</span><span class="rar R">R</span><span>Lv 174</span><span class="stars">LB —</span></span></div><div class="card r-SSR" data-id="n27" role="button" tabindex="0"><span class="nm">Noir</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n28" role="button" tabindex="0"><span class="nm">Maxwell</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SR" data-id="n29" role="button" tabindex="0"><span class="nm">Delta</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n30" role="button" tabindex="0"><span class="nm">Emma</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n31" role="button" tabindex="0"><span class="nm">Elegg</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n32" role="button" tabindex="0"><span class="nm">Neon: Blue Ocean</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SR" data-id="n33" role="button" tabindex="0"><span class="nm">Mica</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Wind"></span>Wind</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n34" role="button" tabindex="0"><span class="nm">Guilty: Mighty Bunny</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n35" role="button" tabindex="0"><span class="nm">Milk</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n36" role="button" tabindex="0"><span class="nm">Mary</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n37" role="button" tabindex="0"><span class="nm">Soline</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SR" data-id="n38" role="button" tabindex="0"><span class="nm">Mihara</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n39" role="button" tabindex="0"><span class="nm">Sakura</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n40" role="button" tabindex="0"><span class="nm">Drake: Great Villain</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n41" role="button" tabindex="0"><span class="nm">Queen (Makoto)</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n42" role="button" tabindex="0"><span class="nm">D: Killer Wife</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n43" role="button" tabindex="0"><span class="nm">Trony</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SSR" data-id="n44" role="button" tabindex="0"><span class="nm">Marian: Queen</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n45" role="button" tabindex="0"><span class="nm">Snow White</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SSR" data-id="n46" role="button" tabindex="0"><span class="nm">Poli</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SR" data-id="n47" role="button" tabindex="0"><span class="nm">Ether</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Electric"></span>Electric</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n48" role="button" tabindex="0"><span class="nm">Mana</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n49" role="button" tabindex="0"><span class="nm">Naga</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SR" data-id="n50" role="button" tabindex="0"><span class="nm">Neon</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Fire"></span>Fire</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n51" role="button" tabindex="0"><span class="nm">Rapunzel: Sanctuary</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 200</span><span class="stars">LB ★★★</span></span></div><div class="card r-SR" data-id="n52" role="button" tabindex="0"><span class="nm">Rapi</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n53" role="button" tabindex="0"><span class="nm">Marciana</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n54" role="button" tabindex="0"><span class="nm">Privaty</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SSR" data-id="n55" role="button" tabindex="0"><span class="nm">Vesti</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n56" role="button" tabindex="0"><span class="nm">Vesti: Tactical Upgrade</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n57" role="button" tabindex="0"><span class="nm">Delta: Ninja Thief</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n58" role="button" tabindex="0"><span class="nm">Blanc</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SSR" data-id="n59" role="button" tabindex="0"><span class="nm">Liter</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n60" role="button" tabindex="0"><span class="nm">Tia</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Iron"></span>Iron</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n61" role="button" tabindex="0"><span class="nm">Privaty: Unkind Maid</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n62" role="button" tabindex="0"><span class="nm">Modernia</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n63" role="button" tabindex="0"><span class="nm">Unknown (ends in k)</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n64" role="button" tabindex="0"><span class="nm">Alice</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★★</span></span></div><div class="card r-SSR" data-id="n65" role="button" tabindex="0"><span class="nm">Exia</span><span class="meta"><span class="burst-badge">Burst I</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n66" role="button" tabindex="0"><span class="nm">Anis: Sparkling Summer</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n67" role="button" tabindex="0"><span class="nm">Velvet</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n68" role="button" tabindex="0"><span class="nm">Clay</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n69" role="button" tabindex="0"><span class="nm">Drake</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 180</span><span class="stars">LB ★★★</span></span></div><div class="card r-SR" data-id="n70" role="button" tabindex="0"><span class="nm">Anis</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Iron"></span>Iron</span><span class="rar SR">SR</span><span>Lv 174</span><span class="stars">LB ★★</span></span></div><div class="card r-SSR" data-id="n71" role="button" tabindex="0"><span class="nm">Brid</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Water"></span>Water</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB ★</span></span></div><div class="card r-SSR" data-id="n72" role="button" tabindex="0"><span class="nm">Red Hood</span><span class="meta"><span class="burst-badge">Burst III</span><span><span class="edot Fire"></span>Fire</span><span class="rar SSR">SSR</span><span>Lv 174</span><span class="stars">LB 0</span></span></div><div class="card r-SSR" data-id="n73" role="button" tabindex="0"><span class="nm">Quency</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Electric"></span>Electric</span><span class="rar SSR">SSR</span><span>Lv 200</span><span class="stars">LB ★★★</span></span></div><div class="card r-SSR" data-id="n74" role="button" tabindex="0"><span class="nm">Admire</span><span class="meta"><span class="burst-badge">Burst II</span><span><span class="edot Wind"></span>Wind</span><span class="rar SSR">SSR</span><span>Lv 195</span><span class="stars">LB ★★★</span></span></div></div>
+  </section>
+
+  <footer>Placements and teams save automatically in this browser (localStorage). Export JSON to back them up or move them to another device. Roster: the 75 Nikkes from your account list, exactly as provided.</footer>
+</div>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal" role="alertdialog" aria-labelledby="modalTitle" aria-describedby="modalText">
+    <h3 id="modalTitle">Reset everything?</h3>
+    <p id="modalText">This clears all tier placements and all 3 saved teams, returning every Nikke to the Unranked pool. This cannot be undone.</p>
+    <div class="row">
+      <button class="btn" id="modalCancel" type="button">Cancel</button>
+      <button class="btn primary" id="modalOk" type="button">Reset</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+
+<script>(() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  function __accessProp(key) {
+    return this[key];
+  }
+  var __toCommonJS = (from) => {
+    var entry = (__moduleCache ??= new WeakMap).get(from), desc;
+    if (entry)
+      return entry;
+    entry = __defProp({}, "__esModule", { value: true });
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (var key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(entry, key))
+          __defProp(entry, key, {
+            get: __accessProp.bind(from, key),
+            enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+          });
+    }
+    __moduleCache.set(from, entry);
+    return entry;
+  };
+  var __moduleCache;
+
+  // src/prelude.ts
+  var exports_prelude = {};
+
+  // src/tunnel-url.ts
+  var B64_CHUNK = 32768;
+  function computeSelfBaseDir(selfHref) {
+    if (!selfHref)
+      return "";
+    let h = selfHref;
+    const hash = h.indexOf("#");
+    if (hash >= 0)
+      h = h.slice(0, hash);
+    const q = h.indexOf("?");
+    if (q >= 0)
+      h = h.slice(0, q);
+    const slash = h.lastIndexOf("/");
+    return slash >= 0 ? h.slice(0, slash + 1) : "";
+  }
+  function isSelfOriginUrl(u, selfBaseDir, selfHref, objectUrls) {
+    if (!selfBaseDir || !u.startsWith(selfBaseDir))
+      return false;
+    if (u === selfHref)
+      return false;
+    return !objectUrls.has(u);
+  }
+  function isExternalUrl(u, selfBaseDir, selfHref, objectUrls) {
+    if (!u)
+      return false;
+    if (u.startsWith("#"))
+      return true;
+    if (isSelfOriginUrl(u, selfBaseDir, selfHref, objectUrls))
+      return false;
+    if (u.startsWith("data:") || u.startsWith("blob:"))
+      return true;
+    if (u.startsWith("about:") || u.startsWith("javascript:"))
+      return true;
+    if (u.startsWith("//"))
+      return true;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(u)) {
+      return true;
+    }
+    return false;
+  }
+  function ownObjectUrl(scriptUrl, objectUrls) {
+    const href = typeof scriptUrl === "string" ? scriptUrl : scriptUrl instanceof URL ? scriptUrl.href : null;
+    return href !== null && href.startsWith("blob:") && objectUrls.has(href) ? href : null;
+  }
+  var WORKER_TUNNEL_SHIM = [
+    "self.__tunnel=self.__tunnel||{",
+    "fetch:function(){return self.fetch.apply(self,arguments)},",
+    "XHR:self.XMLHttpRequest,WebSocket:self.WebSocket,EventSource:self.EventSource,",
+    "Worker:self.Worker,import:function(s){return import(s)},",
+    "Image:function(w,h){return new Image(w,h)},",
+    "sendBeacon:function(){return false},",
+    "getStyle:function(x){if(x==null)return x;try{return x.style}catch(e){return undefined}},",
+    "setStyle:function(x,n,v){x.style[n]=v},",
+    "setUrlProp:function(x,n,v){x[n]=v;return v},",
+    "setAttr:function(x){return x.setAttribute.apply(x,[].slice.call(arguments,1))},",
+    "setAttrNS:function(x){return x.setAttributeNS.apply(x,[].slice.call(arguments,1))},",
+    "setInnerHTML:function(x,v,w){x[w||'innerHTML']=v},",
+    "setStyleText:function(x,v){x.textContent=v},",
+    "insertAdjacentHTML:function(x,p,v){return x.insertAdjacentHTML(p,v)},",
+    `_importMeta:{url:self.location.href}};
+`
+  ].join("");
+  function isWorkerScriptBlob(obj) {
+    return obj instanceof Blob && (obj.type === "" || /javascript|ecmascript/i.test(obj.type));
+  }
+  function workerScriptBlob(script) {
+    return new Blob([WORKER_TUNNEL_SHIM, script], { type: "text/javascript" });
+  }
+  function normalizeToRelPath(u, selfBaseDir) {
+    let s = u;
+    if (selfBaseDir && s.startsWith(selfBaseDir)) {
+      s = s.slice(selfBaseDir.length);
+    }
+    s = s.replace(/^\.\//, "");
+    s = s.replace(/^\/+/, "");
+    return s;
+  }
+  function blobInner(base, NativeURL) {
+    if (base == null)
+      return null;
+    const s = typeof base === "string" ? base : base instanceof NativeURL ? base.href : String(base);
+    return s.startsWith("blob:") ? s.slice("blob:".length) : null;
+  }
+  var OPAQUE_BLOB_ORIGIN = "https://hatch-cvm-opaque.invalid";
+  function isAbsoluteUrlString(s, NativeURL) {
+    try {
+      new NativeURL(s);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  function resolveAgainstBlobBase(u, base, NativeURL) {
+    const inner = blobInner(base, NativeURL);
+    if (inner === null)
+      return null;
+    if (isAbsoluteUrlString(inner, NativeURL)) {
+      return new NativeURL("blob:" + new NativeURL(u, inner).href);
+    }
+    const slash = inner.indexOf("/");
+    const token = slash >= 0 ? inner.slice(0, slash) : inner;
+    const path = slash >= 0 ? inner.slice(slash) : "/";
+    const resolved = new NativeURL(u, OPAQUE_BLOB_ORIGIN + path);
+    return new NativeURL("blob:" + token + resolved.pathname + resolved.search + resolved.hash);
+  }
+  function resolveTunnelUrl(url, base, selfHref, NativeURL) {
+    const u = url == null ? "" : typeof url === "string" ? url : url instanceof NativeURL ? url.href : String(url);
+    const uAbsolute = /^[a-z][a-z0-9+.-]*:/i.test(u) || u.startsWith("//");
+    if (base !== undefined && base !== null && !uAbsolute) {
+      const viaBlob = resolveAgainstBlobBase(u, base, NativeURL);
+      if (viaBlob !== null)
+        return viaBlob;
+      return new NativeURL(u, base);
+    }
+    if (!uAbsolute && selfHref) {
+      const viaBlob = resolveAgainstBlobBase(u, selfHref, NativeURL);
+      if (viaBlob !== null)
+        return viaBlob;
+    }
+    return base === undefined ? new NativeURL(u) : new NativeURL(u, base);
+  }
+  function bytesToBase64(bytes) {
+    const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    let s = "";
+    for (let i = 0;i < u8.length; i += B64_CHUNK) {
+      s += String.fromCharCode.apply(null, Array.from(u8.subarray(i, i + B64_CHUNK)));
+    }
+    return btoa(s);
+  }
+  function base64ToBytes(b64) {
+    const bin = atob(b64);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0;i < bin.length; i++)
+      out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function importMetaUrl(selfHref, selfBaseDir) {
+    return selfBaseDir ? `${selfBaseDir}assets/cvm-bundle.js` : selfHref;
+  }
+
+  // src/download-links.ts
+  function installDownloadLinks(fetchAsset, isExternalUrl, revokeDelayMs) {
+    document.addEventListener("click", (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+        return;
+      const anchor = event.composedPath().find((node) => node instanceof HTMLAnchorElement);
+      if (!anchor?.hasAttribute("download"))
+        return;
+      const href = anchor.getAttribute("href");
+      if (!href || isExternalUrl(href))
+        return;
+      event.preventDefault();
+      const filename = anchor.download || resourceFilename(href);
+      (async () => {
+        const response = await fetchAsset(href);
+        if (!response.ok) {
+          throw new Error(`Artifact download failed: HTTP ${response.status}`);
+        }
+        const url = URL.createObjectURL(await response.blob());
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        link.hidden = true;
+        document.body.appendChild(link);
+        try {
+          link.click();
+        } finally {
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), revokeDelayMs);
+        }
+      })().catch((error) => reportError(error));
+    });
+  }
+  function resourceFilename(href) {
+    const path = new URL(href, document.baseURI).pathname;
+    const name = path.slice(path.lastIndexOf("/") + 1);
+    try {
+      return decodeURIComponent(name);
+    } catch {
+      return name;
+    }
+  }
+
+  // src/fragment-links.ts
+  function installFragmentLinks() {
+    if (!location.href.startsWith("blob:null/"))
+      return;
+    const NativeURL = URL;
+    const pushState = history.pushState.bind(history);
+    const replaceState = history.replaceState.bind(history);
+    window.addEventListener("click", (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+        return;
+      const anchor = event.composedPath().find((node) => node instanceof HTMLAnchorElement);
+      if (!anchor || anchor.hasAttribute("download"))
+        return;
+      const targetName = anchor.getAttribute("target") ?? document.querySelector("base[target]")?.getAttribute("target") ?? "";
+      if (targetName !== "" && targetName.toLowerCase() !== "_self")
+        return;
+      const href = anchor.getAttribute("href");
+      if (!href?.startsWith("#"))
+        return;
+      const oldURL = location.href;
+      const nextURL = new NativeURL(href, oldURL);
+      event.preventDefault();
+      const changed = nextURL.href !== oldURL;
+      if (changed) {
+        pushState(null, "", nextURL.href);
+      } else {
+        replaceState(null, "", nextURL.href);
+      }
+      window.dispatchEvent(new PopStateEvent("popstate", { state: null }));
+      const target = fragmentTarget(nextURL.hash);
+      if (target) {
+        target.scrollIntoView();
+        if (target !== document.documentElement && (target instanceof HTMLElement || target instanceof SVGElement)) {
+          const hadTabIndex = target.hasAttribute("tabindex");
+          if (!hadTabIndex)
+            target.setAttribute("tabindex", "-1");
+          target.focus({ preventScroll: true });
+          if (!hadTabIndex)
+            target.removeAttribute("tabindex");
+        }
+      }
+      if (changed) {
+        queueMicrotask(() => window.dispatchEvent(new HashChangeEvent("hashchange", {
+          oldURL,
+          newURL: nextURL.href
+        })));
+      }
+    });
+  }
+  function fragmentTarget(hash) {
+    const bytes = hash.slice(1).replace(/%([0-9a-f]{2})/gi, (_match, hex) => String.fromCharCode(parseInt(hex, 16)));
+    const fragment = new TextDecoder().decode(Uint8Array.from(bytes, (byte) => byte.charCodeAt(0)));
+    if (fragment === "")
+      return document.documentElement;
+    const idTarget = document.getElementById(fragment);
+    if (idTarget)
+      return idTarget;
+    const namedTarget = Array.from(document.getElementsByName(fragment)).find((node) => node instanceof HTMLAnchorElement);
+    return namedTarget ?? (fragment.toLowerCase() === "top" ? document.documentElement : null);
+  }
+
+  // src/prelude.ts
+  (function installTunnel() {
+    installFragmentLinks();
+    let port = null;
+    let portReadyResolve = null;
+    const portReady = new Promise((res) => {
+      portReadyResolve = res;
+    });
+    const pending = new Map;
+    const openWs = new Map;
+    function newId() {
+      return Math.random().toString(36).slice(2) + "-" + Date.now().toString(36);
+    }
+    function bytesToB64(bytes) {
+      return bytesToBase64(bytes);
+    }
+    function b64ToBytes(b64) {
+      return base64ToBytes(b64);
+    }
+    async function httpReq(method, path, body, headers) {
+      const p = port ?? await portReady;
+      const id = newId();
+      const headerArr = [];
+      if (headers) {
+        const h = new Headers(headers);
+        h.forEach((v, k) => headerArr.push([k, v]));
+      }
+      let bodyB64 = "";
+      if (body != null && body !== "") {
+        let bytes;
+        if (typeof body === "string") {
+          bytes = new TextEncoder().encode(body);
+        } else if (body instanceof ArrayBuffer) {
+          bytes = new Uint8Array(body);
+        } else if (body instanceof Uint8Array) {
+          bytes = body;
+        } else if (body instanceof Blob) {
+          bytes = new Uint8Array(await body.arrayBuffer());
+        } else if (body instanceof FormData) {
+          const boundary = "----HatchBoundary" + Math.random().toString(36).slice(2);
+          let s = "";
+          for (const [k, v] of body.entries()) {
+            s += `--${boundary}\r
+Content-Disposition: form-data; name="${k}"`;
+            if (v instanceof File) {
+              s += `; filename="${v.name}"\r
+Content-Type: ${v.type || "application/octet-stream"}\r
+\r
+`;
+              const fb = new Uint8Array(await v.arrayBuffer());
+              s += new TextDecoder("latin1").decode(fb);
+            } else {
+              s += `\r
+\r
+${v}`;
+            }
+            s += `\r
+`;
+          }
+          s += `--${boundary}--\r
+`;
+          bytes = new TextEncoder().encode(s);
+          headerArr.push([
+            "content-type",
+            `multipart/form-data; boundary=${boundary}`
+          ]);
+        } else {
+          bytes = new TextEncoder().encode(String(body));
+        }
+        bodyB64 = bytesToB64(bytes);
+      }
+      return new Promise((resolve, reject) => {
+        pending.set(id, {
+          resolve: (msg) => {
+            if (msg.error) {
+              reject(new Error(msg.error.message ?? "tunnel error"));
+              return;
+            }
+            resolve({
+              status: msg.status,
+              headers: msg.headers,
+              bytes: msg.bodyB64 ? b64ToBytes(msg.bodyB64) : new Uint8Array(0)
+            });
+          },
+          reject
+        });
+        p.postMessage({
+          type: "http.req",
+          id,
+          method,
+          path,
+          headers: headerArr,
+          bodyB64
+        });
+      });
+    }
+    async function tunnelFetch(input, init) {
+      let urlStr;
+      let method = init?.method ?? "GET";
+      let headers = init?.headers;
+      let body = init?.body;
+      if (input instanceof Request) {
+        urlStr = input.url;
+        method = init?.method ?? input.method;
+        headers = init?.headers ?? input.headers;
+        if (body == null && input.body) {
+          body = await input.arrayBuffer();
+        }
+      } else {
+        urlStr = String(input);
+      }
+      if (isExternalUrl2(urlStr)) {
+        return originalFetch(input, init);
+      }
+      const relPath = normalizeToRelPath2(urlStr);
+      const r = await httpReq(method, relPath, body ?? null, headers);
+      const respHeaders = new Headers;
+      for (const [k, v] of r.headers ?? [])
+        respHeaders.set(k, v);
+      return new Response(r.bytes, {
+        status: r.status,
+        headers: respHeaders
+      });
+    }
+
+    class TunnelWebSocket extends EventTarget {
+      readyState = 0;
+      static CONNECTING = 0;
+      static OPEN = 1;
+      static CLOSING = 2;
+      static CLOSED = 3;
+      CONNECTING = 0;
+      OPEN = 1;
+      CLOSING = 2;
+      CLOSED = 3;
+      url;
+      binaryType = "blob";
+      bufferedAmount = 0;
+      protocol = "";
+      extensions = "";
+      onopen = null;
+      onmessage = null;
+      onclose = null;
+      onerror = null;
+      _id;
+      constructor(urlIn, _protocols) {
+        super();
+        const urlStr = String(urlIn);
+        this.url = urlStr;
+        this._id = newId();
+        openWs.set(this._id, this);
+        const path = normalizeToRelPath2(urlStr);
+        (async () => {
+          const p = port ?? await portReady;
+          p.postMessage({ type: "ws.open", id: this._id, path });
+        })();
+      }
+      _handle(msg) {
+        if (msg.type === "ws.opened") {
+          this.readyState = 1;
+          const ev = new Event("open");
+          this.onopen?.(ev);
+          this.dispatchEvent(ev);
+        } else if (msg.type === "ws.message") {
+          const bytes = msg.dataB64 ? b64ToBytes(msg.dataB64) : new Uint8Array(0);
+          let data;
+          if (msg.binary) {
+            data = this.binaryType === "arraybuffer" ? bytes.buffer : new Blob([bytes]);
+          } else {
+            data = new TextDecoder().decode(bytes);
+          }
+          const ev = new MessageEvent("message", { data });
+          this.onmessage?.(ev);
+          this.dispatchEvent(ev);
+        } else if (msg.type === "ws.closed") {
+          this.readyState = 3;
+          const ev = new CloseEvent("close", {
+            code: msg.code ?? 1000,
+            reason: msg.reason ?? ""
+          });
+          this.onclose?.(ev);
+          this.dispatchEvent(ev);
+          openWs.delete(this._id);
+        } else if (msg.type === "ws.error") {
+          const ev = new Event("error");
+          this.onerror?.(ev);
+          this.dispatchEvent(ev);
+        }
+      }
+      send(data) {
+        (async () => {
+          const p = port ?? await portReady;
+          let bytes;
+          let binary = false;
+          if (typeof data === "string") {
+            bytes = new TextEncoder().encode(data);
+          } else if (data instanceof Blob) {
+            bytes = new Uint8Array(await data.arrayBuffer());
+            binary = true;
+          } else if (data instanceof ArrayBuffer) {
+            bytes = new Uint8Array(data);
+            binary = true;
+          } else if (ArrayBuffer.isView(data)) {
+            bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+            binary = true;
+          } else {
+            bytes = new TextEncoder().encode(String(data));
+          }
+          p.postMessage({
+            type: "ws.send",
+            id: this._id,
+            dataB64: bytesToB64(bytes),
+            binary
+          });
+        })();
+      }
+      close(code, reason) {
+        (async () => {
+          const p = port ?? await portReady;
+          p.postMessage({ type: "ws.close", id: this._id, code, reason });
+        })();
+      }
+      addEventListener(type, listener, options) {
+        super.addEventListener(type, listener, options);
+      }
+    }
+
+    class TunnelXHR extends EventTarget {
+      static UNSENT = 0;
+      static OPENED = 1;
+      static HEADERS_RECEIVED = 2;
+      static LOADING = 3;
+      static DONE = 4;
+      UNSENT = 0;
+      OPENED = 1;
+      HEADERS_RECEIVED = 2;
+      LOADING = 3;
+      DONE = 4;
+      readyState = 0;
+      status = 0;
+      statusText = "";
+      responseText = "";
+      response = null;
+      responseType = "";
+      responseURL = "";
+      withCredentials = false;
+      timeout = 0;
+      upload = new EventTarget;
+      onreadystatechange = null;
+      onload = null;
+      onerror = null;
+      onloadend = null;
+      onabort = null;
+      onprogress = null;
+      ontimeout = null;
+      _method = "GET";
+      _url = "";
+      _reqHeaders = [];
+      _respHeaders = [];
+      _aborted = false;
+      open(method, url) {
+        this._method = method;
+        this._url = url;
+        this.readyState = 1;
+        this.onreadystatechange?.();
+      }
+      setRequestHeader(name, value) {
+        this._reqHeaders.push([name, value]);
+      }
+      getAllResponseHeaders() {
+        return this._respHeaders.map(([k, v]) => `${k}: ${v}`).join(`\r
+`);
+      }
+      getResponseHeader(name) {
+        const lc = name.toLowerCase();
+        const hit = this._respHeaders.find(([k]) => k.toLowerCase() === lc);
+        return hit ? hit[1] : null;
+      }
+      abort() {
+        this._aborted = true;
+        this.readyState = 0;
+      }
+      send(body) {
+        if (isExternalUrl2(this._url)) {
+          const real = new originalXHR;
+          real.open(this._method, this._url);
+          for (const [k, v] of this._reqHeaders)
+            real.setRequestHeader(k, v);
+          real.onload = () => {
+            this.status = real.status;
+            this.responseText = real.responseText;
+            this.response = real.response;
+            this.readyState = 4;
+            this.onreadystatechange?.();
+            this.onload?.();
+            this.onloadend?.();
+            this.dispatchEvent(new Event("load"));
+          };
+          real.onerror = () => {
+            this.onerror?.();
+            this.dispatchEvent(new Event("error"));
+          };
+          real.send(body);
+          return;
+        }
+        const relPath = normalizeToRelPath2(this._url);
+        httpReq(this._method, relPath, body ?? null, this._reqHeaders).then((r) => {
+          if (this._aborted)
+            return;
+          this.status = r.status;
+          this._respHeaders = r.headers ?? [];
+          this.responseText = new TextDecoder().decode(r.bytes);
+          if (this.responseType === "arraybuffer") {
+            this.response = r.bytes.buffer;
+          } else if (this.responseType === "blob") {
+            this.response = new Blob([r.bytes]);
+          } else if (this.responseType === "json") {
+            try {
+              this.response = JSON.parse(this.responseText);
+            } catch {
+              this.response = null;
+            }
+          } else {
+            this.response = this.responseText;
+          }
+          this.readyState = 4;
+          this.onreadystatechange?.();
+          this.onload?.();
+          this.onloadend?.();
+          this.dispatchEvent(new Event("load"));
+        }, () => {
+          if (this._aborted)
+            return;
+          this.onerror?.();
+          this.dispatchEvent(new Event("error"));
+        });
+      }
+    }
+
+    class TunnelEventSource extends EventTarget {
+      static CONNECTING = 0;
+      static OPEN = 1;
+      static CLOSED = 2;
+      readyState = 0;
+      url;
+      withCredentials = false;
+      onopen = null;
+      onmessage = null;
+      onerror = null;
+      constructor(url) {
+        super();
+        this.url = String(url);
+        (async () => {
+          try {
+            const relPath = normalizeToRelPath2(this.url);
+            const r = await httpReq("GET", relPath, null, [
+              ["accept", "text/event-stream"]
+            ]);
+            this.readyState = 1;
+            this.onopen?.(new Event("open"));
+            const text = new TextDecoder().decode(r.bytes);
+            for (const block of text.split(/\n\n/)) {
+              const data = block.split(`
+`).filter((l) => l.startsWith("data:")).map((l) => l.slice(5).trim()).join(`
+`);
+              if (data) {
+                const ev = new MessageEvent("message", { data });
+                this.onmessage?.(ev);
+                this.dispatchEvent(ev);
+              }
+            }
+            this.readyState = 2;
+          } catch {
+            this.onerror?.(new Event("error"));
+          }
+        })();
+      }
+      close() {
+        this.readyState = 2;
+      }
+    }
+    const SELF_HREF = (() => {
+      try {
+        return globalThis.location?.href ?? "";
+      } catch {
+        return "";
+      }
+    })();
+    const SELF_BASE_DIR = computeSelfBaseDir(SELF_HREF);
+    const objectUrls = new Set;
+    const objectUrlScripts = new Map;
+    function isSelfOriginUrl2(u) {
+      return isSelfOriginUrl(u, SELF_BASE_DIR, SELF_HREF, objectUrls);
+    }
+    function isExternalUrl2(u) {
+      return isExternalUrl(u, SELF_BASE_DIR, SELF_HREF, objectUrls);
+    }
+    function normalizeToRelPath2(u) {
+      return normalizeToRelPath(u, SELF_BASE_DIR);
+    }
+    const URL_ATTRS = new Set([
+      "src",
+      "srcset",
+      "href",
+      "poster",
+      "action",
+      "formaction",
+      "data",
+      "background",
+      "cite",
+      "longdesc",
+      "usemap",
+      "manifest"
+    ]);
+    const URL_STYLE_PROPS = new Set([
+      "background",
+      "backgroundImage",
+      "background-image",
+      "borderImage",
+      "border-image",
+      "borderImageSource",
+      "border-image-source",
+      "listStyle",
+      "list-style",
+      "listStyleImage",
+      "list-style-image",
+      "cursor",
+      "mask",
+      "maskImage",
+      "mask-image",
+      "webkitMask",
+      "-webkit-mask",
+      "webkitMaskImage",
+      "-webkit-mask-image",
+      "content",
+      "src"
+    ]);
+    const __BLOB_CACHE_MAX = 256;
+    const __BLOB_REVOKE_DELAY_MS = 30000;
+    const blobCache = new Map;
+    const blobStats = {
+      created: 0,
+      revoked: 0,
+      hits: 0,
+      misses: 0,
+      inFlightRevokes: 0
+    };
+    function __evictIfOverCap() {
+      while (blobCache.size > __BLOB_CACHE_MAX) {
+        const oldestKey = blobCache.keys().next().value;
+        if (oldestKey === undefined)
+          break;
+        const ent = blobCache.get(oldestKey);
+        blobCache.delete(oldestKey);
+        blobStats.inFlightRevokes++;
+        const t = setTimeout(() => {
+          ent.url.then((u) => {
+            if (typeof u === "string" && u.startsWith("blob:")) {
+              try {
+                URL.revokeObjectURL(u);
+                blobStats.revoked++;
+              } catch {}
+            }
+          }).finally(() => {
+            blobStats.inFlightRevokes--;
+          });
+        }, __BLOB_REVOKE_DELAY_MS);
+        ent.pendingRevoke = t;
+      }
+    }
+    function resolveToBlobUrl(rel) {
+      if (isExternalUrl2(rel))
+        return Promise.resolve(rel);
+      const hashIdx = rel.indexOf("#");
+      const pathPart = hashIdx >= 0 ? rel.slice(0, hashIdx) : rel;
+      const frag = hashIdx >= 0 ? rel.slice(hashIdx) : "";
+      const key = normalizeToRelPath2(pathPart);
+      let ent = blobCache.get(key);
+      if (ent) {
+        if (ent.pendingRevoke != null) {
+          clearTimeout(ent.pendingRevoke);
+          ent.pendingRevoke = undefined;
+          blobStats.inFlightRevokes--;
+        }
+        blobCache.delete(key);
+        blobCache.set(key, ent);
+        blobStats.hits++;
+      } else {
+        blobStats.misses++;
+        const url = httpReq("GET", key, null).then((r) => {
+          const ctHeader = r.headers.find(([k]) => k.toLowerCase() === "content-type");
+          const ct = ctHeader?.[1] ?? "application/octet-stream";
+          const blob = new Blob([r.bytes], { type: ct });
+          blobStats.created++;
+          return URL.createObjectURL(blob);
+        });
+        ent = { url };
+        blobCache.set(key, ent);
+        __evictIfOverCap();
+      }
+      return frag ? ent.url.then((b) => b + frag) : ent.url;
+    }
+    const HATCH_PIXEL_PREFIX = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+    const HATCH_FRAG = "#hatch=";
+    function isHatchPlaceholder(url) {
+      return url.indexOf(HATCH_PIXEL_PREFIX + HATCH_FRAG) === 0;
+    }
+    function unwrapHatchPlaceholder(url) {
+      if (!isHatchPlaceholder(url))
+        return null;
+      return decodeURIComponent(url.slice((HATCH_PIXEL_PREFIX + HATCH_FRAG).length));
+    }
+    async function rewriteCssTextAsync(text) {
+      const re = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g;
+      const tasks = [];
+      let m;
+      while ((m = re.exec(text)) !== null) {
+        tasks.push({ match: m[0], index: m.index, url: m[2].trim() });
+      }
+      if (tasks.length === 0)
+        return text;
+      const resolved = await Promise.all(tasks.map(async (t) => {
+        if (t.url.startsWith("blob:"))
+          return t.url;
+        const unwrapped = unwrapHatchPlaceholder(t.url);
+        if (unwrapped != null) {
+          try {
+            return await resolveToBlobUrl(unwrapped);
+          } catch {
+            return t.url;
+          }
+        }
+        if (isExternalUrl2(t.url))
+          return t.url;
+        try {
+          return await resolveToBlobUrl(t.url);
+        } catch {
+          return t.url;
+        }
+      }));
+      let out = "";
+      let last = 0;
+      tasks.forEach((t, i) => {
+        out += text.slice(last, t.index);
+        out += `url("${resolved[i]}")`;
+        last = t.index + t.match.length;
+      });
+      out += text.slice(last);
+      return out;
+    }
+    function rewriteCssText(text) {
+      return rewriteCssTextAsync(text);
+    }
+    const mediaSourceLoads = new WeakMap;
+    window.addEventListener("error", (event) => {
+      const source = event.target;
+      if (!event.isTrusted || !(source instanceof HTMLSourceElement) || !(source.parentElement instanceof HTMLMediaElement) || source.hasAttribute("src"))
+        return;
+      const state = mediaSourceLoads.get(source);
+      if (state === "pending" || state === undefined && source.hasAttribute("data-hatch-src")) {
+        event.stopImmediatePropagation();
+      }
+    }, true);
+    function isElement(el) {
+      if (el instanceof Element)
+        return true;
+      const ownerWindow = el?.ownerDocument?.defaultView;
+      return ownerWindow != null && el instanceof ownerWindow.Element;
+    }
+    function setAttr(el, name, value, ...rest) {
+      if (!isElement(el)) {
+        return el.setAttribute(name, value, ...rest);
+      }
+      name = String(name);
+      if (value == null) {
+        if (name.toLowerCase() === "src" && el instanceof HTMLSourceElement) {
+          mediaSourceLoads.set(el, "settled");
+        }
+        try {
+          el.removeAttribute(name);
+        } catch {}
+        return;
+      }
+      const v = String(value);
+      const lcName = name.toLowerCase();
+      const tag = el.tagName?.toUpperCase();
+      if ((tag === "A" || tag === "BASE" || tag === "AREA") && lcName === "href") {
+        el.setAttribute(name, v);
+        return;
+      }
+      if (!URL_ATTRS.has(lcName) && lcName !== "style" && lcName !== "srcset") {
+        el.setAttribute(name, v);
+        return;
+      }
+      if (lcName === "srcset") {
+        const parts = v.split(",").map((s) => s.trim()).filter(Boolean);
+        Promise.all(parts.map(async (p) => {
+          const segs = p.split(/\s+/);
+          const url = segs[0];
+          const rest = segs.slice(1).join(" ");
+          if (isExternalUrl2(url))
+            return p;
+          const resolved = await resolveToBlobUrl(url);
+          return rest ? `${resolved} ${rest}` : resolved;
+        })).then((rebuilt) => {
+          try {
+            el.setAttribute("srcset", rebuilt.join(", "));
+          } catch {}
+        });
+        return;
+      }
+      if (URL_ATTRS.has(lcName)) {
+        const isMediaSource = tag === "SOURCE" && lcName === "src";
+        if (isExternalUrl2(v)) {
+          if (isMediaSource)
+            mediaSourceLoads.set(el, "settled");
+          el.setAttribute(name, v);
+          return;
+        }
+        if (isMediaSource)
+          mediaSourceLoads.set(el, "pending");
+        if (tag === "IMG" || tag === "VIDEO" && lcName === "poster") {
+          el.setAttribute(name, TRANSPARENT_PIXEL);
+        }
+        resolveToBlobUrl(v).then((blobUrl) => {
+          if (isMediaSource)
+            mediaSourceLoads.set(el, "settled");
+          try {
+            el.setAttribute(name, blobUrl);
+            if (isMediaSource) {
+              const media = el.parentElement;
+              if (media instanceof HTMLMediaElement && media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+                const nextSibling = el.nextSibling;
+                el.remove();
+                media.insertBefore(el, nextSibling);
+              }
+            }
+          } catch {}
+        }, () => {
+          if (isMediaSource) {
+            mediaSourceLoads.set(el, "settled");
+            el.dispatchEvent(new Event("error"));
+          }
+        });
+        return;
+      }
+      if (lcName === "style") {
+        setStyleAttr(el, v);
+        return;
+      }
+      el.setAttribute(name, v);
+    }
+    function setAttrNS(el, ns, name, value, ...rest) {
+      if (!isElement(el)) {
+        return el.setAttributeNS(ns, name, value, ...rest);
+      }
+      name = String(name);
+      if (value == null) {
+        try {
+          el.removeAttributeNS(ns ?? null, name);
+        } catch {}
+        return;
+      }
+      const v = String(value);
+      const lcName = name.split(":").pop().toLowerCase();
+      if (lcName === "href" && URL_ATTRS.has("href")) {
+        if (isExternalUrl2(v)) {
+          el.setAttributeNS(ns ?? null, name, v);
+          return;
+        }
+        resolveToBlobUrl(v).then((blobUrl) => {
+          try {
+            el.setAttributeNS(ns ?? null, name, blobUrl);
+          } catch {}
+        }, () => {});
+        return;
+      }
+      try {
+        el.setAttributeNS(ns ?? null, name, v);
+      } catch {}
+    }
+    function setUrlProp(el, name, value) {
+      if (isElement(el)) {
+        setAttr(el, name.toLowerCase(), value);
+      } else {
+        el[name] = value;
+      }
+      return value;
+    }
+    const TRANSPARENT_PIXEL = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+    const HTML_TAG_ATTRS = {
+      img: ["src", "srcset", "poster"],
+      image: ["href"],
+      video: ["src", "poster"],
+      audio: ["src"],
+      source: ["src", "srcset"],
+      script: ["src"],
+      link: ["href"],
+      iframe: ["src"],
+      embed: ["src"],
+      object: ["data"],
+      track: ["src"],
+      input: ["src"],
+      form: ["action"],
+      button: ["formaction"],
+      use: ["href"]
+    };
+    function rewriteHtmlString(html) {
+      return html.replace(/<([a-zA-Z][a-zA-Z0-9-]*)\b([^>]*)>/g, (m, tag, attrs) => {
+        const lc = String(tag).toLowerCase();
+        const candidates = HTML_TAG_ATTRS[lc];
+        if (!candidates)
+          return m;
+        let out = attrs;
+        for (const a of candidates) {
+          const re = new RegExp(`\\b${a}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s>]+))`, "i");
+          const matched = out.match(re);
+          if (!matched)
+            continue;
+          const value = matched[2] ?? matched[3] ?? matched[4] ?? "";
+          if (isExternalUrl2(value))
+            continue;
+          out = out.replace(re, `data-hatch-${a}="${value.replace(/"/g, "&quot;")}"`);
+        }
+        const styleRe = /\bstyle\s*=\s*("([^"]*)"|'([^']*)')/i;
+        const sm = out.match(styleRe);
+        if (sm) {
+          const value = sm[2] ?? sm[3] ?? "";
+          if (value.includes("url(")) {
+            out = out.replace(styleRe, `data-hatch-style="${value.replace(/"/g, "&quot;")}"`);
+          }
+        }
+        return `<${tag}${out}>`;
+      });
+    }
+    const HTML_URL_ATTRS_BY_TAG = {
+      IMG: ["src", "srcset", "poster"],
+      IMAGE: ["href"],
+      VIDEO: ["src", "poster"],
+      AUDIO: ["src"],
+      SOURCE: ["src", "srcset"],
+      SCRIPT: ["src"],
+      LINK: ["href"],
+      IFRAME: ["src"],
+      EMBED: ["src"],
+      OBJECT: ["data"],
+      TRACK: ["src"],
+      INPUT: ["src"],
+      FORM: ["action"],
+      BUTTON: ["formaction"],
+      USE: ["href", "xlink:href"]
+    };
+    function rewriteSubtreeForTunnel(root) {
+      if (!root)
+        return;
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+      let n = walker.currentNode;
+      if (root.nodeType === 1)
+        processOne(root);
+      while (n = walker.nextNode()) {
+        processOne(n);
+      }
+    }
+    function processOne(el) {
+      const tag = (el.tagName ?? "").toUpperCase();
+      const attrs = HTML_URL_ATTRS_BY_TAG[tag];
+      if (attrs) {
+        for (const a of attrs) {
+          const v = el.getAttribute(a);
+          if (v == null)
+            continue;
+          if (isExternalUrl2(v))
+            continue;
+          el.setAttribute("data-hatch-" + a, v);
+          el.removeAttribute(a);
+        }
+      }
+      const style = el.getAttribute("style");
+      if (style && style.includes("url(")) {
+        el.setAttribute("data-hatch-style", style);
+        el.removeAttribute("style");
+      }
+    }
+    function parseAndCleanHtml(html) {
+      const tpl = document.createElement("template");
+      tpl.innerHTML = html;
+      rewriteSubtreeForTunnel(tpl.content);
+      return tpl.content;
+    }
+    function setInnerHTML(el, html, which = "innerHTML") {
+      const s = html == null ? "" : String(html);
+      if (which === "innerHTML" && typeof el.tagName === "string" && el.tagName.toUpperCase() === "TEMPLATE") {
+        try {
+          el.innerHTML = s;
+        } catch {}
+        return;
+      }
+      if (which === "outerHTML") {
+        const frag = parseAndCleanHtml(s);
+        const wrap = document.createElement("div");
+        wrap.appendChild(frag);
+        try {
+          el.outerHTML = wrap.innerHTML;
+        } catch {}
+        queueMicrotask(() => processDataHatchAttrs(document.body));
+        return;
+      }
+      const frag = parseAndCleanHtml(s);
+      try {
+        while (el.firstChild)
+          el.removeChild(el.firstChild);
+        el.appendChild(frag);
+      } catch {}
+      queueMicrotask(() => processDataHatchAttrs(el));
+    }
+    function insertAdjacentHTMLT(el, position, html) {
+      const s = html == null ? "" : String(html);
+      const frag = parseAndCleanHtml(s);
+      const wrap = document.createElement("template");
+      wrap.content.appendChild(frag);
+      try {
+        el.insertAdjacentHTML(position, wrap.innerHTML);
+      } catch {}
+      queueMicrotask(() => processDataHatchAttrs(document.body));
+    }
+    function processDataHatchAttrs(root) {
+      const SELECTORS = "[data-hatch-src], [data-hatch-href], [data-hatch-srcset], [data-hatch-poster], [data-hatch-action], [data-hatch-data], [data-hatch-style]";
+      root.querySelectorAll(SELECTORS).forEach((el) => {
+        const attrs = el.getAttributeNames();
+        for (const a of attrs) {
+          if (!a.startsWith("data-hatch-"))
+            continue;
+          const real = a.slice("data-hatch-".length);
+          const value = el.getAttribute(a) ?? "";
+          el.removeAttribute(a);
+          if (real === "style")
+            setStyleAttr(el, value);
+          else
+            setAttr(el, real, value);
+        }
+      });
+    }
+    const styleProxyCache = new WeakMap;
+    function getStyle(el) {
+      if (el == null)
+        return el;
+      let real;
+      try {
+        real = el.style;
+      } catch {
+        return;
+      }
+      if (real == null || typeof real !== "object" && typeof real !== "function") {
+        return real;
+      }
+      let proxy = styleProxyCache.get(real);
+      if (proxy)
+        return proxy;
+      proxy = new Proxy(real, {
+        get(target, prop, _receiver) {
+          const v = Reflect.get(target, prop, target);
+          if (typeof v === "function")
+            return v.bind(target);
+          return v;
+        },
+        set(target, prop, value) {
+          if (typeof prop === "string") {
+            setStyle(el, prop, value);
+            return true;
+          }
+          return Reflect.set(target, prop, value, target);
+        }
+      });
+      styleProxyCache.set(real, proxy);
+      return proxy;
+    }
+    function setStyle(el, propName, value) {
+      const v = value == null ? "" : String(value);
+      if (propName.startsWith("--")) {
+        rewriteCssText(v).then((rewritten) => {
+          try {
+            el.style.setProperty(propName, rewritten);
+          } catch {}
+        });
+        return;
+      }
+      if (URL_STYLE_PROPS.has(propName) && v.includes("url(")) {
+        rewriteCssText(v).then((rewritten) => {
+          try {
+            el.style[propName] = rewritten;
+          } catch {}
+        });
+        return;
+      }
+      try {
+        el.style[propName] = v;
+      } catch {}
+    }
+    function setStyleAttr(el, attrValue) {
+      if (!attrValue.includes("url(")) {
+        el.setAttribute("style", attrValue);
+        return;
+      }
+      rewriteCssText(attrValue).then((rewritten) => {
+        try {
+          el.setAttribute("style", rewritten);
+        } catch {}
+      });
+    }
+    function setStyleText(styleEl, text) {
+      if (!(styleEl instanceof HTMLStyleElement)) {
+        try {
+          styleEl.textContent = text;
+        } catch {}
+        return;
+      }
+      if (!text.includes("url(")) {
+        styleEl.textContent = text;
+        return;
+      }
+      rewriteCssText(text).then((rewritten) => {
+        try {
+          styleEl.textContent = rewritten;
+        } catch {}
+      });
+    }
+    function tunnelImage(_w, _h) {
+      const img = new originalImage;
+      const desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
+      if (desc?.set) {
+        const origSet = desc.set;
+        const origGet = desc.get;
+        Object.defineProperty(img, "src", {
+          configurable: true,
+          get() {
+            return origGet.call(img);
+          },
+          set(v) {
+            if (v == null)
+              return origSet.call(img, "");
+            const s = String(v);
+            if (isExternalUrl2(s))
+              return origSet.call(img, s);
+            resolveToBlobUrl(s).then((b) => origSet.call(img, b), () => origSet.call(img, s));
+          }
+        });
+      }
+      return img;
+    }
+    function tunnelSendBeacon(url, data) {
+      tunnelFetch(url, { method: "POST", body: data, keepalive: true }).catch(() => {});
+      return true;
+    }
+    function tunnelWorker(url, options) {
+      const own = ownObjectUrl(url, objectUrls);
+      if (own === null || typeof originalWorker !== "function") {
+        throw new Error("[__tunnel] new Worker() is not supported in Muse Spaces.");
+      }
+      const script = objectUrlScripts.get(own);
+      return new originalWorker(script === undefined ? own : originalCreateObjectURL(workerScriptBlob(script)), options);
+    }
+    function tunnelImport(spec) {
+      throw new Error("[__tunnel] dynamic import() of '" + String(spec) + "' is not supported in Muse Spaces.");
+    }
+    function installCssObserver() {
+      try {
+        const proto = window.CSSStyleSheet?.prototype;
+        if (proto) {
+          const origInsertRule = proto.insertRule;
+          proto.insertRule = function(rule, index) {
+            if (typeof rule === "string" && rule.includes("url(")) {
+              const idx = origInsertRule.call(this, rule, index);
+              rewriteCssText(rule).then((rewritten) => {
+                if (rewritten !== rule) {
+                  try {
+                    this.deleteRule(idx);
+                    origInsertRule.call(this, rewritten, idx);
+                  } catch {}
+                }
+              });
+              return idx;
+            }
+            return origInsertRule.call(this, rule, index);
+          };
+          const origReplace = proto.replace;
+          if (origReplace) {
+            proto.replace = function(text) {
+              if (typeof text === "string" && text.includes("url(")) {
+                return rewriteCssText(text).then((rewritten) => origReplace.call(this, rewritten));
+              }
+              return origReplace.call(this, text);
+            };
+          }
+          const origReplaceSync = proto.replaceSync;
+          if (origReplaceSync) {
+            proto.replaceSync = function(text) {
+              if (typeof text === "string" && text.includes("url(")) {
+                const ret = origReplaceSync.call(this, text);
+                rewriteCssText(text).then((rewritten) => {
+                  try {
+                    origReplaceSync.call(this, rewritten);
+                  } catch {}
+                });
+                return ret;
+              }
+              return origReplaceSync.call(this, text);
+            };
+          }
+        }
+      } catch (e) {}
+      function sweepSheet(sheet) {
+        try {
+          const rules = sheet.cssRules;
+          for (let i = 0;i < rules.length; i++) {
+            const rule = rules[i];
+            const txt = rule.cssText;
+            if (txt && (txt.includes(HATCH_FRAG) || txt.includes("url(") && !/url\(\s*["']?(blob:|https?:|data:image\/gif;base64,R0)/.test(txt))) {
+              rewriteCssText(txt).then((rewritten) => {
+                if (rewritten !== txt) {
+                  try {
+                    sheet.deleteRule(i);
+                    sheet.insertRule(rewritten, i);
+                  } catch {}
+                }
+              });
+            }
+          }
+        } catch {}
+      }
+      function sweepAll() {
+        for (const sheet of Array.from(document.styleSheets)) {
+          sweepSheet(sheet);
+        }
+      }
+      const mo = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          for (const node of Array.from(m.addedNodes)) {
+            if (node instanceof HTMLStyleElement) {
+              const txt = node.textContent ?? "";
+              if (txt.includes("url(")) {
+                rewriteCssText(txt).then((rewritten) => {
+                  if (rewritten !== txt) {
+                    try {
+                      node.textContent = rewritten;
+                    } catch {}
+                  }
+                });
+              }
+            } else if (node instanceof HTMLLinkElement && node.rel === "stylesheet") {
+              node.addEventListener("load", () => sweepSheet(node.sheet), { once: true });
+            }
+          }
+        }
+      });
+      mo.observe(document, { subtree: true, childList: true });
+      Promise.resolve().then(sweepAll);
+      setTimeout(sweepAll, 0);
+      setTimeout(sweepAll, 50);
+      setTimeout(sweepAll, 250);
+    }
+    function rewriteAuthoredHtml() {
+      const SELECTORS = "[data-hatch-src], [data-hatch-href], [data-hatch-srcset]";
+      document.querySelectorAll(SELECTORS).forEach((el) => {
+        const src = el.getAttribute("data-hatch-src");
+        const href = el.getAttribute("data-hatch-href");
+        const srcset = el.getAttribute("data-hatch-srcset");
+        if (src)
+          setAttr(el, "src", src);
+        if (href)
+          setAttr(el, "href", href);
+        if (srcset)
+          setAttr(el, "srcset", srcset);
+      });
+    }
+    let historyUrlWarned = false;
+    function warnHistoryUrlDropped(method, url) {
+      if (url === undefined || url === null)
+        return;
+      if (historyUrlWarned)
+        return;
+      historyUrlWarned = true;
+      try {
+        console.warn("[__tunnel] history." + method + "() was called with a URL; the URL was ignored. A Muse web artifact " + "renders in an opaque origin with no navigable URL of its own, so " + "the browser rejects any URL change. State kept in the URL will not " + "persist or survive a reload — keep it in component state, or in " + "the artifact's database through a server action.");
+      } catch {}
+    }
+    const originalFetch = globalThis.fetch?.bind(globalThis) ?? (() => {
+      throw new Error("no native fetch");
+    });
+    const originalXHR = globalThis.XMLHttpRequest;
+    const originalWorker = globalThis.Worker;
+    const originalCreateObjectURL = URL.createObjectURL.bind(URL);
+    const originalImage = globalThis.Image;
+    const tunnel = {
+      fetch: tunnelFetch,
+      XHR: TunnelXHR,
+      WebSocket: TunnelWebSocket,
+      EventSource: TunnelEventSource,
+      Image: tunnelImage,
+      Worker: tunnelWorker,
+      import: tunnelImport,
+      sendBeacon: tunnelSendBeacon,
+      setAttr,
+      setAttrNS,
+      setUrlProp,
+      setStyle,
+      getStyle,
+      setStyleAttr,
+      setStyleText,
+      setInnerHTML,
+      insertAdjacentHTML: insertAdjacentHTMLT,
+      rewriteCssText,
+      resolveToBlobUrl,
+      processDataHatchAttrs,
+      rewriteHtmlString,
+      _resolveUrlString: (v) => v,
+      _resolveCssValue: (v) => v,
+      _resolveCssText: (v) => v,
+      _resolveStyleProp: (v) => v,
+      _importMeta: {
+        get url() {
+          return importMetaUrl(SELF_HREF, SELF_BASE_DIR);
+        }
+      },
+      _state: {
+        get port() {
+          return port;
+        },
+        get inFlight() {
+          return pending.size;
+        },
+        get blobCacheSize() {
+          return blobCache.size;
+        },
+        get blobStats() {
+          return { ...blobStats };
+        }
+      }
+    };
+    globalThis.__tunnel = tunnel;
+    window.__tunnel = tunnel;
+    try {
+      globalThis.fetch = tunnelFetch;
+      window.fetch = tunnelFetch;
+      globalThis.XMLHttpRequest = TunnelXHR;
+      window.XMLHttpRequest = TunnelXHR;
+      globalThis.WebSocket = TunnelWebSocket;
+      window.WebSocket = TunnelWebSocket;
+      globalThis.EventSource = TunnelEventSource;
+      window.EventSource = TunnelEventSource;
+      const nav = globalThis.navigator;
+      if (nav && typeof nav.sendBeacon === "function") {
+        nav.sendBeacon = (url, data) => tunnelSendBeacon(url, data);
+      }
+      const NativeURL = globalThis.URL;
+      const TunnelURL = function(url, base) {
+        return resolveTunnelUrl(url, base, SELF_HREF, NativeURL);
+      };
+      TunnelURL.prototype = NativeURL.prototype;
+      for (const k of Object.getOwnPropertyNames(NativeURL)) {
+        if (k === "prototype" || k === "length" || k === "name")
+          continue;
+        try {
+          TunnelURL[k] = NativeURL[k];
+        } catch {}
+      }
+      globalThis.URL = TunnelURL;
+      window.URL = TunnelURL;
+    } catch {}
+    try {
+      const hist = globalThis.history;
+      if (hist && typeof hist.pushState === "function" && typeof hist.replaceState === "function") {
+        const nativePushState = hist.pushState.bind(hist);
+        const nativeReplaceState = hist.replaceState.bind(hist);
+        hist.pushState = function(state, title, url) {
+          warnHistoryUrlDropped("pushState", url);
+          return nativePushState(state, title ?? "");
+        };
+        hist.replaceState = function(state, title, url) {
+          warnHistoryUrlDropped("replaceState", url);
+          return nativeReplaceState(state, title ?? "");
+        };
+      }
+    } catch {}
+    try {
+      const nativeCreateObjectURL = URL.createObjectURL.bind(URL);
+      const nativeRevokeObjectURL = URL.revokeObjectURL.bind(URL);
+      URL.createObjectURL = function(obj) {
+        const created = nativeCreateObjectURL(obj);
+        try {
+          objectUrls.add(created);
+          if (isWorkerScriptBlob(obj))
+            objectUrlScripts.set(created, obj);
+        } catch {}
+        return created;
+      };
+      URL.revokeObjectURL = function(objectUrl) {
+        try {
+          objectUrls.delete(objectUrl);
+          objectUrlScripts.delete(objectUrl);
+        } catch {}
+        nativeRevokeObjectURL(objectUrl);
+      };
+    } catch {}
+    const announceEpoch = Math.random().toString(36).slice(2) + "-" + Date.now().toString(36);
+    let announceTimer = null;
+    function announce() {
+      try {
+        window.parent.postMessage({ type: "bundle:ready", epoch: announceEpoch }, "*");
+      } catch {}
+    }
+    function startAnnouncing() {
+      announce();
+      announceTimer = setInterval(() => {
+        if (port != null) {
+          if (announceTimer != null)
+            clearInterval(announceTimer);
+          announceTimer = null;
+          return;
+        }
+        announce();
+      }, 120);
+    }
+    function onParentMessage(ev) {
+      const data = ev.data;
+      if (!data || typeof data !== "object")
+        return;
+      if (data.type === "bundle:init-port" && ev.ports && ev.ports[0]) {
+        if (port != null)
+          return;
+        if (announceTimer != null) {
+          clearInterval(announceTimer);
+          announceTimer = null;
+        }
+        port = ev.ports[0];
+        port.onmessage = (pe) => {
+          const msg = pe.data;
+          if (!msg || typeof msg !== "object")
+            return;
+          if (msg.type === "http.res") {
+            const ent = pending.get(msg.id);
+            if (ent) {
+              pending.delete(msg.id);
+              ent.resolve(msg);
+            }
+          } else if (msg.type === "ws.opened" || msg.type === "ws.message" || msg.type === "ws.closed" || msg.type === "ws.error") {
+            openWs.get(msg.id)?._handle(msg);
+          }
+        };
+        port.start?.();
+        portReadyResolve?.(port);
+        installCssObserver();
+        rewriteAuthoredHtml();
+        try {
+          window.parent.postMessage({ type: "bundle:port-attached" }, "*");
+        } catch {}
+      }
+    }
+    window.addEventListener("message", onParentMessage);
+    installDownloadLinks(tunnelFetch, isExternalUrl2, __BLOB_REVOKE_DELAY_MS);
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      startAnnouncing();
+    } else {
+      document.addEventListener("DOMContentLoaded", startAnnouncing);
+    }
+  })();
+})();
+
+;
+"use strict";
+var RAW = [["Liberalio", 174, "III", "Wind", "SSR", 0], ["Eunhwa: Tactical Upgrade", 174, "II", "Fire", "SSR", 0], ["Ein", 174, "III", "Electric", "SSR", 0], ["Product 08", 174, "I", "Electric", "R", -1], ["Dolla", 174, "II", "Wind", "SSR", 0], ["Nero", 174, "II", "Fire", "SSR", 0], ["Soldier EG", 1, "III", "Electric", "R", -1], ["Product 23", 1, "II", "Wind", "R", -1], ["iDoll Sun", 1, "III", "Iron", "R", -1], ["iDoll Ocean", 1, "I", "Water", "R", -1], ["Product 12", 1, "III", "Fire", "R", -1], ["Belorta: Pumpkin Witch", 174, "II", "Water", "SSR", 0], ["Eunhwa", 174, "II", "Fire", "SSR", 0], ["Soldier OW", 174, "I", "Fire", "R", -1], ["Yuni", 174, "II", "Fire", "SSR", 0], ["Guillotine", 174, "III", "Electric", "SSR", 0], ["Signal", 174, "II", "Fire", "SSR", 0], ["Belorta", 174, "II", "Electric", "SR", 2], ["N102", 174, "I", "Water", "SR", 2], ["K", 174, "III", "Electric", "SSR", 0], ["Cinderella", 174, "III", "Iron", "SSR", 0], ["Soda", 174, "I", "Fire", "SSR", 0], ["Epinel", 174, "III", "Wind", "SSR", 0], ["Aigis", 174, "II", "Iron", "SR", 2], ["Harran", 174, "III", "Electric", "SSR", 0], ["Doll Flower", 174, "I", "Wind", "R", -1], ["Soldier FA", 174, "II", "Iron", "R", -1], ["Noir", 174, "III", "Wind", "SSR", 0], ["Maxwell", 174, "III", "Iron", "SSR", 0], ["Delta", 174, "II", "Wind", "SR", 2], ["Emma", 174, "I", "Fire", "SSR", 0], ["Elegg", 174, "II", "Electric", "SSR", 0], ["Neon: Blue Ocean", 174, "III", "Water", "SSR", 0], ["Mica", 174, "I", "Wind", "SR", 2], ["Guilty: Mighty Bunny", 174, "III", "Water", "SSR", 0], ["Milk", 174, "I", "Water", "SSR", 0], ["Mary", 174, "I", "Water", "SSR", 0], ["Soline", 174, "III", "Iron", "SSR", 1], ["Mihara", 174, "III", "Water", "SR", 2], ["Sakura", 174, "I", "Fire", "SSR", 0], ["Drake: Great Villain", 174, "III", "Wind", "SSR", 0], ["Queen (Makoto)", 174, "III", "Fire", "SSR", 0], ["D: Killer Wife", 174, "I", "Fire", "SSR", 0], ["Trony", 174, "III", "Fire", "SSR", 1], ["Marian: Queen", 174, "III", "Fire", "SSR", 0], ["Snow White", 174, "III", "Iron", "SSR", 1], ["Poli", 174, "II", "Water", "SSR", 0], ["Ether", 174, "I", "Electric", "SR", 2], ["Mana", 174, "III", "Wind", "SSR", 0], ["Naga", 174, "II", "Electric", "SSR", 1], ["Neon", 174, "I", "Fire", "SR", 2], ["Rapunzel: Sanctuary", 200, "II", "Fire", "SSR", 3], ["Rapi", 174, "III", "Fire", "SR", 2], ["Marciana", 174, "II", "Iron", "SSR", 2], ["Privaty", 174, "III", "Water", "SSR", 1], ["Vesti", 174, "III", "Water", "SSR", 0], ["Vesti: Tactical Upgrade", 174, "III", "Fire", "SSR", 0], ["Delta: Ninja Thief", 174, "II", "Water", "SSR", 2], ["Blanc", 174, "II", "Wind", "SSR", 1], ["Liter", 174, "I", "Iron", "SSR", 0], ["Tia", 174, "I", "Iron", "SSR", 0], ["Privaty: Unkind Maid", 174, "III", "Electric", "SSR", 0], ["Modernia", 174, "III", "Fire", "SSR", 0], ["Unknown (ends in k)", 174, "III", "Wind", "SSR", 2], ["Alice", 174, "III", "Fire", "SSR", 3], ["Exia", 174, "I", "Electric", "SSR", 2], ["Anis: Sparkling Summer", 174, "III", "Electric", "SSR", 0], ["Velvet", 174, "II", "Wind", "SSR", 2], ["Clay", 174, "II", "Electric", "SSR", 0], ["Drake", 180, "III", "Fire", "SSR", 3], ["Anis", 174, "II", "Iron", "SR", 2], ["Brid", 174, "III", "Water", "SSR", 1], ["Red Hood", 174, "III", "Fire", "SSR", 0], ["Quency", 200, "II", "Electric", "SSR", 3], ["Admire", 195, "II", "Wind", "SSR", 3]];
+var NIKKES = RAW.map(function (r, i) {
+  return {
+    id: "n" + i,
+    name: r[0],
+    level: r[1],
+    burst: r[2],
+    element: r[3],
+    rarity: r[4],
+    lb: r[5]
+  };
+});
+var BY_ID = {};
+NIKKES.forEach(function (n) {
+  BY_ID[n.id] = n;
+});
+var TIERS = [{
+  id: "S",
+  label: "S"
+}, {
+  id: "A",
+  label: "A"
+}, {
+  id: "B",
+  label: "B"
+}, {
+  id: "C",
+  label: "C"
+}, {
+  id: "D",
+  label: "D"
+}, {
+  id: "unranked",
+  label: "Unranked"
+}];
+var LS_KEY = "nikke-tier-team-v1";
+function defaultState() {
+  var placements = {};
+  NIKKES.forEach(function (n) {
+    placements[n.id] = "unranked";
+  });
+  return {
+    placements: placements,
+    teams: [1, 2, 3].map(function (i) {
+      return {
+        name: "Team " + i,
+        slots: [null, null, null, null, null]
+      };
+    }),
+    activeTeam: 0
+  };
+}
+function loadState() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (!raw) return defaultState();
+    var s = JSON.parse(raw),
+      d = defaultState();
+    if (s && s.placements) {
+      NIKKES.forEach(function (n) {
+        if (TIERS.some(function (t) {
+          return t.id === s.placements[n.id];
+        })) d.placements[n.id] = s.placements[n.id];
+      });
+    }
+    if (s && Array.isArray(s.teams)) {
+      s.teams.slice(0, 3).forEach(function (t, i) {
+        if (!t) return;
+        if (typeof t.name === "string" && t.name) d.teams[i].name = t.name.slice(0, 40);
+        if (Array.isArray(t.slots)) {
+          var seen = {};
+          d.teams[i].slots = t.slots.slice(0, 5).map(function (id) {
+            if (id && BY_ID[id] && !seen[id]) {
+              seen[id] = 1;
+              return id;
+            }
+            return null;
+          });
+          while (d.teams[i].slots.length < 5) d.teams[i].slots.push(null);
+        }
+      });
+    }
+    if (typeof s.activeTeam === "number" && s.activeTeam >= 0 && s.activeTeam < 3) d.activeTeam = s.activeTeam;
+    return d;
+  } catch (e) {
+    return defaultState();
+  }
+}
+var state = loadState();
+function save() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+  } catch (e) {}
+}
+function el(tag, cls, text) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function lbText(n) {
+  if (n.lb < 0) return "LB —";
+  if (n.lb === 0) return "LB 0";
+  return "LB " + new Array(n.lb + 1).join("★");
+}
+function metaHTML(n) {
+  return '<span class="burst-badge">Burst ' + n.burst + '</span>' + '<span><span class="edot ' + n.element + '"></span>' + n.element + '</span>' + '<span class="rar ' + n.rarity + '">' + n.rarity + '</span>' + '<span>Lv ' + n.level + '</span>' + '<span class="stars">' + lbText(n) + '</span>';
+}
+var toastTimer = null;
+function toast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () {
+    t.classList.remove("show");
+  }, 2400);
+}
+var tabTier = document.getElementById("tabTier"),
+  tabTeam = document.getElementById("tabTeam");
+var viewTier = document.getElementById("viewTier"),
+  viewTeam = document.getElementById("viewTeam");
+function showView(team) {
+  __tunnel.setAttr(tabTier, "aria-selected", String(!team));
+  __tunnel.setAttr(tabTeam, "aria-selected", String(team));
+  viewTier.hidden = team;
+  viewTeam.hidden = !team;
+}
+tabTier.addEventListener("click", function () {
+  showView(false);
+});
+tabTeam.addEventListener("click", function () {
+  showView(true);
+});
+var board = document.getElementById("tierBoard");
+var selectedId = null;
+var zoneEls = {};
+function makeCard(n, draggable) {
+  var c = el("div", "card r-" + n.rarity);
+  c.dataset.id = n.id;
+  if (draggable) {
+    __tunnel.setAttr(c, "draggable", "true");
+    __tunnel.setAttr(c, "role", "button");
+    c.tabIndex = 0;
+    __tunnel.setAttr(c, "aria-label", n.name + ". Activate to select, then activate a tier to move.");
+  }
+  var nm = el("span", "nm", n.name);
+  c.appendChild(nm);
+  var meta = el("span", "meta");
+  __tunnel.setInnerHTML(meta, metaHTML(n), "innerHTML");
+  c.appendChild(meta);
+  return c;
+}
+function buildBoard() {
+  __tunnel.setInnerHTML(board, "", "innerHTML");
+  zoneEls = {};
+  TIERS.forEach(function (t) {
+    var row = el("div", "tier-row");
+    var lab = el("div", "tier-label " + (t.id === "unranked" ? "t-unranked" : "t-" + t.id), t.id === "unranked" ? "POOL" : t.label);
+    __tunnel.setAttr(lab, "role", "button");
+    lab.tabIndex = 0;
+    __tunnel.setAttr(lab, "aria-label", t.id === "unranked" ? "Move selected Nikke to the Unranked pool" : "Move selected Nikke to tier " + t.label);
+    lab.title = "Tap to move the selected Nikke here";
+    var cnt = el("span", "n", "");
+    lab.appendChild(cnt);
+    lab.dataset.countFor = t.id;
+    var zone = el("div", "tier-zone");
+    zone.dataset.tier = t.id;
+    zoneEls[t.id] = zone;
+    row.appendChild(lab);
+    row.appendChild(zone);
+    board.appendChild(row);
+    zone.addEventListener("dragover", function (ev) {
+      ev.preventDefault();
+      zone.classList.add("dragover");
+    });
+    zone.addEventListener("dragleave", function () {
+      zone.classList.remove("dragover");
+    });
+    zone.addEventListener("drop", function (ev) {
+      ev.preventDefault();
+      zone.classList.remove("dragover");
+      var id = ev.dataTransfer.getData("text/plain");
+      if (id && BY_ID[id]) moveToTier(id, t.id);
+    });
+    zone.addEventListener("click", function (ev) {
+      if (selectedId && ev.target === zone) moveToTier(selectedId, t.id);
+    });
+    lab.addEventListener("click", function () {
+      if (selectedId) moveToTier(selectedId, t.id);
+    });
+    lab.addEventListener("keydown", function (ev) {
+      if ((ev.key === "Enter" || ev.key === " ") && selectedId) {
+        ev.preventDefault();
+        moveToTier(selectedId, t.id);
+      }
+    });
+  });
+}
+function renderTiers() {
+  TIERS.forEach(function (t) {
+    var zone = zoneEls[t.id];
+    __tunnel.setInnerHTML(zone, "", "innerHTML");
+    var members = NIKKES.filter(function (n) {
+      return state.placements[n.id] === t.id;
+    });
+    members.forEach(function (n) {
+      var c = makeCard(n, true);
+      if (n.id === selectedId) c.classList.add("selected");
+      c.addEventListener("dragstart", function (ev) {
+        ev.dataTransfer.setData("text/plain", n.id);
+        ev.dataTransfer.effectAllowed = "move";
+      });
+      c.addEventListener("click", function () {
+        toggleSelect(n.id);
+      });
+      c.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          toggleSelect(n.id);
+        }
+      });
+      zone.appendChild(c);
+    });
+    if (!members.length) zone.appendChild(el("span", "empty-note", t.id === "unranked" ? "Everyone is ranked." : "Drop Nikkes here, or select one and tap this row."));
+    var lab = board.querySelector('[data-countFor="' + t.id + '"]');
+    if (lab) lab.textContent = members.length + (t.id === "unranked" ? " unranked" : " in tier");
+  });
+  var ranked = NIKKES.filter(function (n) {
+    return state.placements[n.id] !== "unranked";
+  }).length;
+  document.getElementById("countRanked").textContent = ranked;
+  document.getElementById("countUnranked").textContent = NIKKES.length - ranked;
+  applyFilters();
+}
+function toggleSelect(id) {
+  selectedId = selectedId === id ? null : id;
+  var hint = document.getElementById("moveHint");
+  if (selectedId) {
+    document.getElementById("moveName").textContent = BY_ID[selectedId].name;
+    hint.classList.add("show");
+  } else hint.classList.remove("show");
+  renderTiers();
+}
+function moveToTier(id, tier) {
+  state.placements[id] = tier;
+  selectedId = null;
+  document.getElementById("moveHint").classList.remove("show");
+  save();
+  renderTiers();
+  toast(BY_ID[id].name + " → " + (tier === "unranked" ? "Unranked pool" : "Tier " + tier));
+}
+var fSearch = document.getElementById("fSearch"),
+  fElement = document.getElementById("fElement"),
+  fRarity = document.getElementById("fRarity"),
+  fBurst = document.getElementById("fBurst");
+function matches(n) {
+  var q = fSearch.value.trim().toLowerCase();
+  if (q && n.name.toLowerCase().indexOf(q) === -1) return false;
+  if (fElement.value && n.element !== fElement.value) return false;
+  if (fRarity.value && n.rarity !== fRarity.value) return false;
+  if (fBurst.value && n.burst !== fBurst.value) return false;
+  return true;
+}
+function applyFilters() {
+  var visible = 0;
+  board.querySelectorAll(".card").forEach(function (c) {
+    var ok = matches(BY_ID[c.dataset.id]);
+    c.classList.toggle("hidden-by-filter", !ok);
+    if (ok) visible++;
+  });
+  var active = fSearch.value.trim() || fElement.value || fRarity.value || fBurst.value;
+  document.getElementById("filterNote").textContent = active ? "Showing " + visible + " of 75 Nikkes. Filters only hide cards — placements are unchanged." : "";
+}
+[fSearch, fElement, fRarity, fBurst].forEach(function (inp) {
+  inp.addEventListener("input", applyFilters);
+  inp.addEventListener("change", applyFilters);
+});
+var teamTabsEl = document.getElementById("teamTabs"),
+  slotsEl = document.getElementById("slots"),
+  pickerEl = document.getElementById("picker"),
+  teamNameInput = document.getElementById("teamName"),
+  pSearch = document.getElementById("pSearch");
+function activeSlots() {
+  return state.teams[state.activeTeam].slots;
+}
+function renderTeamTabs() {
+  __tunnel.setInnerHTML(teamTabsEl, "", "innerHTML");
+  state.teams.forEach(function (t, i) {
+    var b = el("button", "team-tab", t.name || "Team " + (i + 1));
+    b.type = "button";
+    __tunnel.setAttr(b, "role", "tab");
+    __tunnel.setAttr(b, "aria-selected", String(i === state.activeTeam));
+    b.addEventListener("click", function () {
+      state.activeTeam = i;
+      save();
+      renderTeam();
+    });
+    teamTabsEl.appendChild(b);
+  });
+  teamNameInput.value = state.teams[state.activeTeam].name;
+}
+teamNameInput.addEventListener("input", function () {
+  state.teams[state.activeTeam].name = teamNameInput.value;
+  save();
+  teamTabsEl.querySelectorAll(".team-tab").forEach(function (b, i) {
+    b.textContent = state.teams[i].name || "Team " + (i + 1);
+  });
+});
+document.getElementById("btnClearTeam").addEventListener("click", function () {
+  state.teams[state.activeTeam].slots = [null, null, null, null, null];
+  save();
+  renderTeam();
+  toast("Team cleared.");
+});
+function renderSlots() {
+  __tunnel.setInnerHTML(slotsEl, "", "innerHTML");
+  activeSlots().forEach(function (id, idx) {
+    if (!id) {
+      var s = el("div", "slot");
+      s.appendChild(el("span", "slotnum", "SLOT " + (idx + 1)));
+      s.appendChild(el("span", null, "Empty"));
+      slotsEl.appendChild(s);
+    } else {
+      var n = BY_ID[id];
+      var s2 = el("div", "slot filled");
+      __tunnel.setAttr(s2, "role", "button");
+      s2.tabIndex = 0;
+      __tunnel.setAttr(s2, "aria-label", "Remove " + n.name + " from team");
+      s2.appendChild(el("span", "slotnum", "SLOT " + (idx + 1)));
+      s2.appendChild(el("span", "nm", n.name));
+      var m = el("span", "meta");
+      __tunnel.setInnerHTML(m, metaHTML(n), "innerHTML");
+      s2.appendChild(m);
+      s2.appendChild(el("span", "remove", "Tap to remove"));
+      var rm = function () {
+        state.teams[state.activeTeam].slots[idx] = null;
+        save();
+        renderTeam();
+      };
+      s2.addEventListener("click", rm);
+      s2.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          rm();
+        }
+      });
+      slotsEl.appendChild(s2);
+    }
+  });
+}
+function renderSummary() {
+  var members = activeSlots().filter(Boolean).map(function (id) {
+    return BY_ID[id];
+  });
+  var bc = {
+      "I": 0,
+      "II": 0,
+      "III": 0
+    },
+    ec = {},
+    lvlSum = 0;
+  members.forEach(function (n) {
+    bc[n.burst]++;
+    ec[n.element] = (ec[n.element] || 0) + 1;
+    lvlSum += n.level;
+  });
+  __tunnel.setInnerHTML(document.getElementById("sumBursts"), ["I", "II", "III"].map(function (b) {
+    return '<span class="chip">Burst ' + b + ': <b>' + bc[b] + '</b></span>';
+  }).join(""), "innerHTML");
+  var elems = Object.keys(ec);
+  __tunnel.setInnerHTML(document.getElementById("sumElements"), elems.length ? elems.map(function (e) {
+    return '<span class="chip"><span class="edot ' + e + '"></span>' + e + ': <b>' + ec[e] + '</b></span>';
+  }).join("") : '<span class="chip">None yet</span>', "innerHTML");
+  document.getElementById("sumAvg").textContent = members.length ? Math.round(lvlSum / members.length * 10) / 10 : "—";
+  document.getElementById("sumCount").textContent = members.length;
+  var flag = document.getElementById("chainFlag");
+  if (!members.length) {
+    flag.className = "chain-flag idle";
+    flag.textContent = "Add Nikkes below to build your burst chain.";
+  } else {
+    var missing = ["I", "II", "III"].filter(function (b) {
+      return bc[b] === 0;
+    });
+    if (missing.length) {
+      flag.className = "chain-flag bad";
+      flag.textContent = "Burst chain incomplete — missing Burst " + missing.join(", Burst ") + ". A full chain needs at least one Burst I, II, and III.";
+    } else {
+      flag.className = "chain-flag ok";
+      flag.textContent = "Full burst chain ready: Burst I, II, and III are all covered.";
+    }
+  }
+}
+function renderPicker() {
+  __tunnel.setInnerHTML(pickerEl, "", "innerHTML");
+  var q = pSearch.value.trim().toLowerCase();
+  var inTeam = {};
+  activeSlots().forEach(function (id) {
+    if (id) inTeam[id] = 1;
+  });
+  NIKKES.forEach(function (n) {
+    if (q && n.name.toLowerCase().indexOf(q) === -1) return;
+    var c = makeCard(n, false);
+    if (inTeam[n.id]) {
+      c.classList.add("inteam");
+      var tag = el("span", "inteam-tag", "IN TEAM — tap to remove");
+      c.querySelector(".meta").appendChild(tag);
+    }
+    __tunnel.setAttr(c, "role", "button");
+    c.tabIndex = 0;
+    var act = function () {
+      var slots = activeSlots();
+      var at = slots.indexOf(n.id);
+      if (at > -1) {
+        slots[at] = null;
+      } else {
+        var empty = slots.indexOf(null);
+        if (empty === -1) {
+          toast("Team is full — remove someone first.");
+          return;
+        }
+        slots[empty] = n.id;
+      }
+      save();
+      renderTeam();
+    };
+    c.addEventListener("click", act);
+    c.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        act();
+      }
+    });
+    pickerEl.appendChild(c);
+  });
+  if (!pickerEl.children.length) pickerEl.appendChild(el("span", "empty-note", "No Nikkes match that search."));
+}
+pSearch.addEventListener("input", renderPicker);
+function renderTeam() {
+  renderTeamTabs();
+  renderSlots();
+  renderSummary();
+  renderPicker();
+}
+function downloadFile(name, content, type) {
+  var blob = new Blob([content], {
+    type: type
+  });
+  var a = document.createElement("a");
+  __tunnel.setUrlProp(a, "href", URL.createObjectURL(blob));
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function () {
+    URL.revokeObjectURL(a.href);
+    a.remove();
+  }, 400);
+}
+document.getElementById("btnExport").addEventListener("click", function () {
+  downloadFile("nikke-tier-list-and-teams.json", JSON.stringify(state, null, 2), "application/json");
+  toast("Exported tier placements and teams as JSON.");
+});
+var fileImport = document.getElementById("fileImport");
+document.getElementById("btnImport").addEventListener("click", function () {
+  fileImport.click();
+});
+fileImport.addEventListener("change", function () {
+  var f = fileImport.files[0];
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function () {
+    try {
+      var parsed = JSON.parse(reader.result);
+      if (!parsed || typeof parsed !== "object" || !parsed.placements || !Array.isArray(parsed.teams)) throw new Error("shape");
+      localStorage.setItem(LS_KEY, JSON.stringify(parsed));
+      state = loadState();
+      selectedId = null;
+      document.getElementById("moveHint").classList.remove("show");
+      renderTiers();
+      renderTeam();
+      toast("Import complete.");
+    } catch (e) {
+      toast("That file could not be imported — it is not a valid backup from this page.");
+    }
+    fileImport.value = "";
+  };
+  reader.readAsText(f);
+});
+document.getElementById("btnDownload").addEventListener("click", function () {
+  var html = "<!doctype html>\n" + document.documentElement.outerHTML;
+  downloadFile("nikke-tier-list-and-team-builder.html", html, "text/html");
+  toast("Downloaded a standalone copy of this page.");
+});
+var modalBack = document.getElementById("modalBack");
+document.getElementById("btnReset").addEventListener("click", function () {
+  modalBack.classList.add("show");
+});
+document.getElementById("modalCancel").addEventListener("click", function () {
+  modalBack.classList.remove("show");
+});
+modalBack.addEventListener("click", function (ev) {
+  if (ev.target === modalBack) modalBack.classList.remove("show");
+});
+document.getElementById("modalOk").addEventListener("click", function () {
+  state = defaultState();
+  selectedId = null;
+  save();
+  document.getElementById("moveHint").classList.remove("show");
+  modalBack.classList.remove("show");
+  renderTiers();
+  renderTeam();
+  toast("Reset done — all 75 Nikkes are back in the Unranked pool.");
+});
+buildBoard();
+renderTiers();
+renderTeam();</script>
+
+
+</body></html>
