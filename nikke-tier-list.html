@@ -527,6 +527,25 @@ const state = {
 };
 let teamSeq = 1;
 
+/* ---------- Local persistence (hosted copy: saves owned units, Treasure toggles, saved teams and Tier Maker placements in this browser) ---------- */
+const LS_KEY = "nikke-tier-list-v1";
+function persistLocal(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify({owned:[...state.owned], treasure:[...state.treasure], teams:state.teams, tm:state.tm, teamSeq})); }catch(e){}
+}
+function restoreLocal(){
+  try{
+    const raw = localStorage.getItem(LS_KEY); if(!raw) return;
+    const d = JSON.parse(raw); if(!d || typeof d!=="object") return;
+    if(Array.isArray(d.owned)) state.owned = new Set(d.owned.filter(x=>BY_SLUG.has(x)));
+    if(Array.isArray(d.treasure)) state.treasure = new Set(d.treasure.filter(x=>BY_SLUG.has(x)));
+    if(d.tm && typeof d.tm==="object"){ state.tm={}; Object.keys(d.tm).forEach(x=>{ if(BY_SLUG.has(x) && ["S","A","B","C","D"].includes(d.tm[x])) state.tm[x]=d.tm[x]; }); }
+    if(Array.isArray(d.teams)) state.teams = d.teams.filter(t=>t&&Array.isArray(t.slots)).map((t,i)=>({id:typeof t.id==="number"?t.id:i+1, name:t.name||("Squad "+(i+1)), mode:t.mode||"story", slots:t.slots.filter(x=>BY_SLUG.has(x))}));
+    if(typeof d.teamSeq==="number" && d.teamSeq>0) teamSeq = d.teamSeq;
+  }catch(e){}
+}
+let __persistTimer = null;
+function schedulePersist(){ if(__persistTimer) return; __persistTimer = setTimeout(()=>{ __persistTimer=null; persistLocal(); }, 300); }
+
 /* ================= Helpers ================= */
 const $ = (s, r) => (r||document).querySelector(s);
 const $$ = (s, r) => Array.from((r||document).querySelectorAll(s));
@@ -1694,6 +1713,10 @@ function renderHeroCore(){
 }
 /* ================= Boot ================= */
 const dlb=$("#dlPageBtn"); if(dlb)dlb.addEventListener("click",downloadPageHTML);
+restoreLocal();
+document.addEventListener("click", schedulePersist, true);
+window.addEventListener("beforeunload", persistLocal);
+setInterval(persistLocal, 5000);
 renderTabs();
 renderHeroCore();
 renderOwned();
