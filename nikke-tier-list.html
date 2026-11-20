@@ -915,14 +915,13 @@ function renderTabs(){
   $$("#tabgrid [data-tab]").forEach(btn=>btn.addEventListener("click",()=>showTab(btn.dataset.tab)));
 }
 function showTab(key){
-  const _tabChanged = key!==state.tab;
   state.tab=key;
   TABS.forEach(t=>{const el=$("#tab-"+t.key);if(el)el.classList.toggle("hidden",t.key!==key);});
   renderTabs();
   ({owned:renderOwned,tiers:renderTiers,tiermaker:renderTierMaker,builder:renderBuilder,myteams:renderMyTeams,story:()=>renderRecTeams("story"),pvp:()=>renderRecTeams("pvp"),anomaly:renderAnomaly,characters:renderCharacters,timeline:renderTimeline})[key]();
-  /* Only scroll to the top when actually switching tabs. Re-rendering the same tab
-     (e.g. clicking OWN IT / Treasure in Owned Units) must keep the visitor where they were. */
-  if(_tabChanged) window.scrollTo({top:0,behavior:"smooth"});
+  /* Never move the visitor's scroll position here. Clicking OWN IT / Treasure
+     re-renders the same tab, and clicking a main tab switches tabs — in both cases
+     the page must stay exactly where the visitor was. */
 }
 function scoreTile(a,mode){
   return `<div class="scoretile"><div class="big" style="color:${scoreTone(a.combinedScore)}">${a.combinedScore}</div><div class="lab">Combined · ${esc(a.label)}</div><div class="tiny muted">Synergy ${a.synergy.score} · Compat ${a.compatScore} · Power ${a.synergy.power}</div></div>`;
